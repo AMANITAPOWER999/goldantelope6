@@ -1,0 +1,117 @@
+{
+  "country": "Indonesia",
+  "country_code": "id",
+  "flag": "🇮🇩",
+  "currency": "IDR",
+  "channels": {
+    "chat": [
+      "indonesia_chat",
+      "bali_chat",
+      "jakarta_chat",
+      "surabaya_chat",
+      "bandung_chat",
+      "medan_chat",
+      "yogyakarta_chat",
+      "makassar_chat",
+      "chatotgleba",
+      "Bali_chat_official",
+      "bali_topchat",
+      "kazakhbali",
+      "swift_bali",
+      "bali_ubud_changu",
+      "balii_dating",
+      "indoneziaa",
+      "indonezia3",
+      "Mobile",
+      "voprosBali",
+      "networkingbali",
+      "CHAT_BALI_REAL_ESTATE",
+      "baly_chat",
+      "balii_chat",
+      "bali_ua"
+    ],
+    "restaurants": [
+      "restoran_indonesia",
+      "bali_restaurants",
+      "jakarta_food"
+    ],
+    "real_estate": [
+      "properti_indonesia",
+      "rumah_bali",
+      "apartemen_jakarta",
+      "onerealestatebali",
+      "baliveruspraedium",
+      "balichat_ubud",
+      "balichathealth",
+      "baly9",
+      "balyt",
+      "baliarenda1",
+      "eieasia",
+      "estetico_estate",
+      "estetico_estate_ua",
+      "kvartirabally",
+      "kvartira_bali",
+      "oplatahousingbot",
+      "bali_appart"
+    ],
+    "exchange": [
+      "tukar_uang_indonesia",
+      "bali_obmenn",
+      "balichange",
+      "Obmen_Valyuty_Bali",
+      "WorkExBali",
+      "balichatexchange",
+      "obmen_bali",
+      "baly_obmen",
+      "bali_obmenbot",
+      "Indonesia_Obmen",
+      "baliobmen",
+      "bali_valyta",
+      "Shsjjsjskksk5bot",
+      "Xqushwgsabot"
+    ],
+    "tours": [
+      "tour_bali",
+      "wisata_indonesia",
+      "balipackage",
+      "balipa",
+      "pvbali"
+    ],
+    "visas": [
+      "visa_indonesia",
+      "bali_visa",
+      "hyinably"
+    ],
+    "entertainment": [
+      "@anak_indonesia",
+      "@parenting_bali",
+      "@kids_jakarta",
+      "@mainan_anak",
+      "@daycare_indonesia"
+    ],
+    "medicine": [
+      "kesehatan_indonesia"
+    ],
+    "marketplace": [
+      "jual_beli_indonesia",
+      "indonesrex"
+    ],
+    "news": [
+      "berita_indonesia"
+    ],
+    "transport": [
+      "motor_indonesia",
+      "sepeda_motor_bali",
+      "Bali_Bike_Rental",
+      "bike_rent_bali",
+      "arendabaika_bali",
+      "transportbalirent",
+      "BikeBalifornia",
+      "balibike_sic",
+      "moto_point_bali",
+      "BAIK_bali",
+      "bali_baik",
+      "arenda_avto_indoneziya1bot"
+    ]
+  }
+}

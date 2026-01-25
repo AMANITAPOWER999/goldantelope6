@@ -1,0 +1,549 @@
+{
+  "updated": "2025-12-24T06:00:39.343672",
+  "groups": [
+    {
+      "channel": "@phuket_rentas",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 18693,
+      "online": 1947,
+      "region": "phuket"
+    },
+    {
+      "channel": "@phuket_arenda",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 10840,
+      "online": 1401,
+      "region": "phuket"
+    },
+    {
+      "channel": "@nashi_phuket_realty",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 6705,
+      "online": 870,
+      "region": "phuket"
+    },
+    {
+      "channel": "@renthomephuket",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 2916,
+      "online": 81,
+      "region": "phuket"
+    },
+    {
+      "channel": "@phuket_ru",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 976,
+      "online": 72,
+      "region": "phuket"
+    },
+    {
+      "channel": "@Pkhuket_Chatx",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 43964,
+      "online": 2275,
+      "region": "phuket"
+    },
+    {
+      "channel": "@vmestenaphukete",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 12673,
+      "online": 3848,
+      "region": "phuket"
+    },
+    {
+      "channel": "@phuket_chat1",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 24556,
+      "online": 2504,
+      "region": "phuket"
+    },
+    {
+      "channel": "@PHUKETCONSULATE",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 13023,
+      "online": 0,
+      "region": "phuket"
+    },
+    {
+      "channel": "@phuket_food",
+      "category": "Рестораны",
+      "category_key": "restaurants",
+      "participants": 8,
+      "online": 0,
+      "region": "phuket"
+    },
+    {
+      "channel": "@phuket_kids",
+      "category": "Для детей",
+      "category_key": "entertainment",
+      "participants": 15,
+      "online": 0,
+      "region": "phuket"
+    },
+    {
+      "channel": "@phuket_deti",
+      "category": "Для детей",
+      "category_key": "entertainment",
+      "participants": 966,
+      "online": 108,
+      "region": "phuket"
+    },
+    {
+      "channel": "@detiphuket",
+      "category": "Для детей",
+      "category_key": "entertainment",
+      "participants": 3,
+      "online": 0,
+      "region": "phuket"
+    },
+    {
+      "channel": "@pattaya_arenda",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 10177,
+      "online": 1131,
+      "region": "pattaya"
+    },
+    {
+      "channel": "@pattaya_arenda_ask",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 10175,
+      "online": 2484,
+      "region": "pattaya"
+    },
+    {
+      "channel": "@Pattaya_Arenda_ru",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 6969,
+      "online": 808,
+      "region": "pattaya"
+    },
+    {
+      "channel": "@pattaya_arendaa",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 2506,
+      "online": 269,
+      "region": "pattaya"
+    },
+    {
+      "channel": "@pattaya_happy_auto",
+      "category": "Барахолка",
+      "category_key": "marketplace",
+      "participants": 9828,
+      "online": 1373,
+      "region": "pattaya"
+    },
+    {
+      "channel": "@pattaya_food",
+      "category": "Рестораны",
+      "category_key": "restaurants",
+      "participants": 381,
+      "online": 73,
+      "region": "pattaya"
+    },
+    {
+      "channel": "@pattaya_kids",
+      "category": "Для детей",
+      "category_key": "entertainment",
+      "participants": 457,
+      "online": 95,
+      "region": "pattaya"
+    },
+    {
+      "channel": "@pattaya_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 9,
+      "online": 0,
+      "region": "pattaya"
+    },
+    {
+      "channel": "@pattaya_ru",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 2722,
+      "online": 275,
+      "region": "pattaya"
+    },
+    {
+      "channel": "@bangkokFeeds",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 7545,
+      "online": 1072,
+      "region": "bangkok"
+    },
+    {
+      "channel": "@arenda_bangkok",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 6592,
+      "online": 45,
+      "region": "bangkok"
+    },
+    {
+      "channel": "@bangkokrentl",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 3455,
+      "online": 0,
+      "region": "bangkok"
+    },
+    {
+      "channel": "@bangkok_appart",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 3435,
+      "online": 183,
+      "region": "bangkok"
+    },
+    {
+      "channel": "@bangkokre",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 3098,
+      "online": 0,
+      "region": "bangkok"
+    },
+    {
+      "channel": "@bangkok_Arenda",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 2623,
+      "online": 285,
+      "region": "bangkok"
+    },
+    {
+      "channel": "@bangkok_chat_znakomstva",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 9967,
+      "online": 1010,
+      "region": "bangkok"
+    },
+    {
+      "channel": "@bangkok_sale",
+      "category": "Барахолка",
+      "category_key": "marketplace",
+      "participants": 6837,
+      "online": 723,
+      "region": "bangkok"
+    },
+    {
+      "channel": "@bangkok_kids",
+      "category": "Для детей",
+      "category_key": "entertainment",
+      "participants": 79,
+      "online": 15,
+      "region": "bangkok"
+    },
+    {
+      "channel": "@bangkok_deti",
+      "category": "Для детей",
+      "category_key": "entertainment",
+      "participants": 60,
+      "online": 13,
+      "region": "bangkok"
+    },
+    {
+      "channel": "@samuiphanganrainazemle",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 5565,
+      "online": 699,
+      "region": "samui_phangan_chiangmai"
+    },
+    {
+      "channel": "@arendasamui",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 2372,
+      "online": 0,
+      "region": "samui_phangan_chiangmai"
+    },
+    {
+      "channel": "@samuirental",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 1173,
+      "online": 0,
+      "region": "samui_phangan_chiangmai"
+    },
+    {
+      "channel": "@phangan_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 3825,
+      "online": 414,
+      "region": "samui_phangan_chiangmai"
+    },
+    {
+      "channel": "@samui_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 57,
+      "online": 0,
+      "region": "samui_phangan_chiangmai"
+    },
+    {
+      "channel": "@chiangmai_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 3651,
+      "online": 412,
+      "region": "samui_phangan_chiangmai"
+    },
+    {
+      "channel": "@valutaphuket",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 8718,
+      "online": 1237,
+      "region": "money_exchange"
+    },
+    {
+      "channel": "@Pkhuket_Obmen",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 3506,
+      "online": 0,
+      "region": "money_exchange"
+    },
+    {
+      "channel": "@moneyphangan",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 17793,
+      "online": 2606,
+      "region": "money_exchange"
+    },
+    {
+      "channel": "@fm1ex",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 4070,
+      "online": 0,
+      "region": "money_exchange"
+    },
+    {
+      "channel": "@bereza_exchange",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 2822,
+      "online": 0,
+      "region": "money_exchange"
+    },
+    {
+      "channel": "@thailand_transfer",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 9,
+      "online": 0,
+      "region": "money_exchange"
+    },
+    {
+      "channel": "@dtv_visa_thai",
+      "category": "Визаран",
+      "category_key": "visas",
+      "participants": 2,
+      "online": 0,
+      "region": "visas_news"
+    },
+    {
+      "channel": "@real_thailand",
+      "category": "Новости",
+      "category_key": "news",
+      "participants": 542,
+      "online": 0,
+      "region": "visas_news"
+    },
+    {
+      "channel": "@thailand_news_ru",
+      "category": "Новости",
+      "category_key": "news",
+      "participants": 13,
+      "online": 0,
+      "region": "visas_news"
+    },
+    {
+      "channel": "@thai_medicine",
+      "category": "Новости",
+      "category_key": "news",
+      "participants": 35044,
+      "online": 4999,
+      "region": "visas_news"
+    },
+    {
+      "channel": "@phuket_moto",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 0,
+      "online": 0,
+      "region": "transport"
+    },
+    {
+      "channel": "@pattaya_bike",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 0,
+      "online": 0,
+      "region": "transport"
+    },
+    {
+      "channel": "@thailand_auto",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 1,
+      "online": 0,
+      "region": "transport"
+    },
+    {
+      "channel": "@Ekskursii_Tailand",
+      "category": "Экскурсии",
+      "category_key": "tours",
+      "participants": 15277,
+      "online": 209,
+      "region": "tours"
+    },
+    {
+      "channel": "@phuket_tours",
+      "category": "Экскурсии",
+      "category_key": "tours",
+      "participants": 12,
+      "online": 0,
+      "region": "tours"
+    },
+    {
+      "channel": "@thailand_business",
+      "category": "Барахолка",
+      "category_key": "marketplace",
+      "participants": 5,
+      "online": 0,
+      "region": "work_business"
+    },
+    {
+      "channel": "@thailand_delivery",
+      "category": "Барахолка",
+      "category_key": "marketplace",
+      "participants": 1,
+      "online": 0,
+      "region": "work_business"
+    },
+    {
+      "channel": "@russiansin_thailand",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 295,
+      "online": 27,
+      "region": "communities"
+    },
+    {
+      "channel": "@Russian_Thailand",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 339,
+      "online": 18,
+      "region": "communities"
+    },
+    {
+      "channel": "@svoi_thai_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 7761,
+      "online": 911,
+      "region": "communities"
+    },
+    {
+      "channel": "@thaiexpat999",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 2112,
+      "online": 284,
+      "region": "communities"
+    },
+    {
+      "channel": "@thailand_russia_ru",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 5682,
+      "online": 661,
+      "region": "communities"
+    },
+    {
+      "channel": "@Thailand_ATP1",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 18723,
+      "online": 2068,
+      "region": "communities"
+    },
+    {
+      "channel": "@thailand_hotels_travelask",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 53351,
+      "online": 8562,
+      "region": "communities"
+    },
+    {
+      "channel": "@TAILANDr",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 40882,
+      "online": 991,
+      "region": "communities"
+    },
+    {
+      "channel": "@dariajay",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 2476,
+      "online": 0,
+      "region": "communities"
+    },
+    {
+      "channel": "@Tailand_chat2",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 22897,
+      "online": 130,
+      "region": "communities"
+    },
+    {
+      "channel": "@thailand_party",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 2,
+      "online": 0,
+      "region": "communities"
+    },
+    {
+      "channel": "@Tai_Nedvizhimost",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 40682,
+      "online": 698,
+      "region": "communities"
+    },
+    {
+      "channel": "@rentinthai",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 5386,
+      "online": 1013,
+      "region": "communities"
+    }
+  ]
+}

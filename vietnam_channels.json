@@ -1,0 +1,86 @@
+{
+  "channels": {
+    "chat": [
+      "vietnam_chatt",
+      "vungtau_chat",
+      "dalat_forum",
+      "danang_forum",
+      "danang_expats",
+      "danang_woman",
+      "danang_chatik",
+      "kamran_chat",
+      "kuinen_chat",
+      "nhatrang_chatik",
+      "nhatrang_expats",
+      "phanthiet_chat",
+      "fukuok_chatik",
+      "hochiminh_chat",
+      "hanoi_chat"
+    ],
+    "restaurants": [
+      "vietnam_food",
+      "danang_food",
+      "food_muine",
+      "food_nhatrang",
+      "phuquoc_food"
+    ],
+    "real_estate": [
+      "vietnam_rent",
+      "danang_nedvijimost",
+      "niachang_arenda",
+      "fukuok_nedvijimost",
+      "danag_viet_life_rent",
+      "DaNangApartmentRent",
+      "danang_arenda",
+      "Danang_House",
+      "DaNangRentAFlat",
+      "Hanoirentapartment",
+      "hcmc_arenda",
+      "HoChiMinhRentl",
+      "PhuquocRentl",
+      "realty_gohomenhatrang",
+      "viet_life_niachang"
+    ],
+    "exchange": [
+      "vietnam_obmen"
+    ],
+    "tours": [
+      "vietnam_tours",
+      "nhatrang_skyline",
+      "sputnik8_official",
+      "tripsterofficial",
+      "katusha_tur"
+    ],
+    "visas": [
+      "vietnam_viza",
+      "vietnam_vizaran"
+    ],
+    "entertainment": [
+      "MelomaniaMusicNT"
+    ],
+    "medicine": [
+      "vietnam_medicina"
+    ],
+    "marketplace": [
+      "vietnam_poputchiki",
+      "danang_mart",
+      "baraholka_niachang"
+    ],
+    "news": [
+      "vietnam_forum",
+      "saigon_360",
+      "hanoi_360"
+    ],
+    "bike_rentals": [],
+    "transport": [
+      "nhatrang_moto",
+      "saigon_tusa",
+      "bike_nhatrang",
+      "nha_trang_rent",
+      "available_exchange"
+    ],
+    "kids": [
+      "vietnam_deti"
+    ]
+  }
+}

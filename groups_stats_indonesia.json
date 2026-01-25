@@ -1,0 +1,788 @@
+{
+  "updated": "2025-12-24T07:02:34.423106",
+  "groups": [
+    {
+      "channel": "@voprosBali",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 51814,
+      "online": 5357,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@onerealestatebali",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 30662,
+      "online": 3979,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@networkingbali",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 30260,
+      "online": 3942,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@baly9",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 21092,
+      "online": 1525,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@baliveruspraedium",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 14321,
+      "online": 3025,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@balii_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 14207,
+      "online": 155,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@balichatexchange",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 13775,
+      "online": 3608,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@bali_ubud_changu",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 11625,
+      "online": 1638,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@balii_dating",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 11496,
+      "online": 533,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@bali_topchat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 11320,
+      "online": 1524,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@bali_ua",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 9627,
+      "online": 1978,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@balichat_ubud",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 9225,
+      "online": 2289,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@balyt",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 7902,
+      "online": 1431,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@balichathealth",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 6935,
+      "online": 1793,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@estetico_estate",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 4774,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@bali_obmenn",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 4765,
+      "online": 300,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@CHAT_BALI_REAL_ESTATE",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 4353,
+      "online": 847,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@bike_rent_bali",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 4214,
+      "online": 85,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@baly_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 4094,
+      "online": 315,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@WorkExBali",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 3736,
+      "online": 104,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@jakarta_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 3117,
+      "online": 280,
+      "region": "bali",
+      "listings": 178
+    },
+    {
+      "channel": "@bali_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 3101,
+      "online": 12,
+      "region": "bali",
+      "listings": 200
+    },
+    {
+      "channel": "@Bali_chat_official",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 2808,
+      "online": 461,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@Obmen_Valyuty_Bali",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 2589,
+      "online": 52,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@balibike_sic",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 2446,
+      "online": 414,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@bali_appart",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 2143,
+      "online": 14,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@Bali_Bike_Rental",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 1980,
+      "online": 170,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@balichange",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 1753,
+      "online": 184,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@kazakhbali",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 891,
+      "online": 123,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@eieasia",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 800,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@transportbalirent",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 534,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@arendabaika_bali",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 507,
+      "online": 9,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@indoneziaa",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 450,
+      "online": 31,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@BikeBalifornia",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 362,
+      "online": 96,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@moto_point_bali",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 160,
+      "online": 61,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@indonesia_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 48,
+      "online": 0,
+      "region": "bali",
+      "listings": 169
+    },
+    {
+      "channel": "@chatotgleba",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 40,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@surabaya_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 18,
+      "online": 1,
+      "region": "bali",
+      "listings": 88
+    },
+    {
+      "channel": "@estetico_estate_ua",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 17,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@kvartirabally",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 16,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@swift_bali",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 5,
+      "online": 3,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@properti_indonesia",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 3,
+      "online": 0,
+      "region": "bali",
+      "listings": 4
+    },
+    {
+      "channel": "@kvartira_bali",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 1,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@@anak_indonesia",
+      "category": "Для детей",
+      "category_key": "entertainment",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@@daycare_indonesia",
+      "category": "Для детей",
+      "category_key": "entertainment",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@@kids_jakarta",
+      "category": "Для детей",
+      "category_key": "entertainment",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@@mainan_anak",
+      "category": "Для детей",
+      "category_key": "entertainment",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@@parenting_bali",
+      "category": "Для детей",
+      "category_key": "entertainment",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@BAIK_bali",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@Indonesia_Obmen",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@Mobile",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@Shsjjsjskksk5bot",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@Xqushwgsabot",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@apartemen_jakarta",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@arenda_avto_indoneziya1bot",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@bali_baik",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@bali_obmenbot",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@bali_restaurants",
+      "category": "Рестораны",
+      "category_key": "restaurants",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@bali_valyta",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@bali_visa",
+      "category": "Визаран",
+      "category_key": "visas",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@baliarenda1",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@baliobmen",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@balipa",
+      "category": "Экскурсии",
+      "category_key": "tours",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@balipackage",
+      "category": "Экскурсии",
+      "category_key": "tours",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@baly_obmen",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@bandung_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@berita_indonesia",
+      "category": "Новости",
+      "category_key": "news",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@hyinably",
+      "category": "Визаран",
+      "category_key": "visas",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@indonesrex",
+      "category": "Барахолка",
+      "category_key": "marketplace",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@indonezia3",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@jakarta_food",
+      "category": "Рестораны",
+      "category_key": "restaurants",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@jual_beli_indonesia",
+      "category": "Барахолка",
+      "category_key": "marketplace",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 100
+    },
+    {
+      "channel": "@kesehatan_indonesia",
+      "category": "Медицина",
+      "category_key": "medicine",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 6
+    },
+    {
+      "channel": "@makassar_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@medan_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@motor_indonesia",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@obmen_bali",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@oplatahousingbot",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@pvbali",
+      "category": "Экскурсии",
+      "category_key": "tours",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@restoran_indonesia",
+      "category": "Рестораны",
+      "category_key": "restaurants",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@rumah_bali",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@sepeda_motor_bali",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@tour_bali",
+      "category": "Экскурсии",
+      "category_key": "tours",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 32
+    },
+    {
+      "channel": "@tukar_uang_indonesia",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@visa_indonesia",
+      "category": "Визаран",
+      "category_key": "visas",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@wisata_indonesia",
+      "category": "Экскурсии",
+      "category_key": "tours",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    },
+    {
+      "channel": "@yogyakarta_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 0,
+      "online": 0,
+      "region": "bali",
+      "listings": 0
+    }
+  ]
+}

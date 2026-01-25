@@ -1,0 +1,26 @@
+{
+  "channels": [
+    {
+      "id": "ad_1768535486",
+      "name": "@viet_life_niachang",
+      "category": "realestate",
+      "city": "Нячанг",
+      "members": 5000,
+      "price": 10,
+      "contact": "66447",
+      "added": "2026-01-16T03:51:26.349912",
+      "approved": true
+    },
+    {
+      "id": "ad_1768627465",
+      "name": "@fgfgd",
+      "category": "entertainment",
+      "city": "Нячанг",
+      "members": 2000,
+      "price": 11,
+      "contact": "@gdbbdf",
+      "added": "2026-01-17T05:24:25.350032",
+      "approved": true
+    }
+  ]
+}

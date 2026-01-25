@@ -1,0 +1,49 @@
+{
+  "country": "India",
+  "country_code": "in",
+  "flag": "🇮🇳",
+  "currency": "INR",
+  "channels": {
+    "chat": [
+      "india_chat",
+      "delhi_chat",
+      "mumbai_chat",
+      "bangalore_chat",
+      "goa_chat",
+      "kolkata_chat",
+      "pune_chat"
+    ],
+    "restaurants": [
+      "india_food",
+      "delhi_restaurants"
+    ],
+    "real_estate": [
+      "india_rent",
+      "delhi_apartments"
+    ],
+    "exchange": [
+      "india_exchange"
+    ],
+    "tours": [
+      "india_tours"
+    ],
+    "visas": [
+      "india_visa"
+    ],
+    "entertainment": [
+      "india_kids"
+    ],
+    "medicine": [
+      "india_hospital"
+    ],
+    "marketplace": [
+      "india_marketplace"
+    ],
+    "news": [
+      "india_news"
+    ],
+    "transport": [
+      "india_motorbike"
+    ]
+  }
+}

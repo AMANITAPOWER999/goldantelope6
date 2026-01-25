@@ -1,0 +1,698 @@
+{
+  "updated": "2025-12-24T07:36:01.585355",
+  "groups": [
+    {
+      "channel": "@baraholka_niachang",
+      "category": "Барахолка",
+      "category_key": "marketplace",
+      "participants": 0,
+      "online": 0,
+      "region": "nhatrang",
+      "listings": 43
+    },
+    {
+      "channel": "@dalat_forum",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 2016,
+      "online": 567,
+      "region": "dalat",
+      "listings": 92
+    },
+    {
+      "channel": "@dalat_ru",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 32
+    },
+    {
+      "channel": "@danang_afisha",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 59
+    },
+    {
+      "channel": "@danang_chatik",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 1136,
+      "online": 362,
+      "region": "danang",
+      "listings": 52
+    },
+    {
+      "channel": "@danang_expats",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 1461,
+      "online": 447,
+      "region": "danang",
+      "listings": 200
+    },
+    {
+      "channel": "@danang_food",
+      "category": "Рестораны",
+      "category_key": "restaurants",
+      "participants": 0,
+      "online": 0,
+      "region": "danang",
+      "listings": 86
+    },
+    {
+      "channel": "@danang_forum",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 11568,
+      "online": 3480,
+      "region": "danang",
+      "listings": 96
+    },
+    {
+      "channel": "@danang_mart",
+      "category": "Барахолка",
+      "category_key": "marketplace",
+      "participants": 0,
+      "online": 0,
+      "region": "danang",
+      "listings": 41
+    },
+    {
+      "channel": "@danang_nedvijimost",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 0,
+      "online": 0,
+      "region": "danang",
+      "listings": 16
+    },
+    {
+      "channel": "@danang_tysa",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 61
+    },
+    {
+      "channel": "@danang_woman",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 2525,
+      "online": 865,
+      "region": "danang",
+      "listings": 62
+    },
+    {
+      "channel": "@danang_znakomstva",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 30
+    },
+    {
+      "channel": "@eda_hanoi",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 82
+    },
+    {
+      "channel": "@eda_saigon",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 88
+    },
+    {
+      "channel": "@food_muine",
+      "category": "Рестораны",
+      "category_key": "restaurants",
+      "participants": 0,
+      "online": 0,
+      "region": "muine",
+      "listings": 57
+    },
+    {
+      "channel": "@food_nhatrang",
+      "category": "Рестораны",
+      "category_key": "restaurants",
+      "participants": 0,
+      "online": 0,
+      "region": "nhatrang",
+      "listings": 80
+    },
+    {
+      "channel": "@fukuok_chatik",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 4320,
+      "online": 995,
+      "region": "fukuok",
+      "listings": 78
+    },
+    {
+      "channel": "@fukuok_nedvijimost",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 0,
+      "online": 0,
+      "region": "fukuok",
+      "listings": 72
+    },
+    {
+      "channel": "@fukuok_ponaehali",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 1
+    },
+    {
+      "channel": "@fukuok_tusa",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 48
+    },
+    {
+      "channel": "@halong_chat",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 93
+    },
+    {
+      "channel": "@hanoi_360",
+      "category": "Новости",
+      "category_key": "news",
+      "participants": 0,
+      "online": 0,
+      "region": "hanoi",
+      "listings": 66
+    },
+    {
+      "channel": "@hanoi_afisha",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 16
+    },
+    {
+      "channel": "@hanoi_chatik",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 84
+    },
+    {
+      "channel": "@hanoi_forum",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 85
+    },
+    {
+      "channel": "@hanoi_woman",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 96
+    },
+    {
+      "channel": "@hochiminh_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 5502,
+      "online": 1395,
+      "region": "hochiminh",
+      "listings": 85
+    },
+    {
+      "channel": "@hoian_chat",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 70
+    },
+    {
+      "channel": "@hoshimin_afisha",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 72
+    },
+    {
+      "channel": "@hoshiminh_woman",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 80
+    },
+    {
+      "channel": "@hoyan_chat",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 31
+    },
+    {
+      "channel": "@hue_chat",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 92
+    },
+    {
+      "channel": "@kamran_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 153,
+      "online": 41,
+      "region": "kamran",
+      "listings": 98
+    },
+    {
+      "channel": "@kuinen_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 500,
+      "online": 96,
+      "region": "kuinen",
+      "listings": 96
+    },
+    {
+      "channel": "@muine_afisha",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 2
+    },
+    {
+      "channel": "@muine_afisha_chat",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 90
+    },
+    {
+      "channel": "@muine_woman",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 76
+    },
+    {
+      "channel": "@muinechat",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 70
+    },
+    {
+      "channel": "@nhatrang_chatik",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 7880,
+      "online": 2325,
+      "region": "nhatrang",
+      "listings": 98
+    },
+    {
+      "channel": "@nhatrang_expats",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 3229,
+      "online": 930,
+      "region": "nhatrang",
+      "listings": 97
+    },
+    {
+      "channel": "@nhatrang_moto",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 0,
+      "online": 0,
+      "region": "nhatrang",
+      "listings": 196
+    },
+    {
+      "channel": "@nhatrang_ponaehali",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 5
+    },
+    {
+      "channel": "@nhatrang_znakomstva",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 12
+    },
+    {
+      "channel": "@niachang_arenda",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 0,
+      "online": 0,
+      "region": "nhatrang",
+      "listings": 19
+    },
+    {
+      "channel": "@niachang_chat",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 37
+    },
+    {
+      "channel": "@niachang_deti",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 88
+    },
+    {
+      "channel": "@nyachang_chatik",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 61
+    },
+    {
+      "channel": "@nyachang_ru",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 67
+    },
+    {
+      "channel": "@nyachang_znakomstva",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 65
+    },
+    {
+      "channel": "@otdam_niachang",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 62
+    },
+    {
+      "channel": "@phanthiet_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 350,
+      "online": 59,
+      "region": "phanthiet",
+      "listings": 92
+    },
+    {
+      "channel": "@phuquoc_food",
+      "category": "Рестораны",
+      "category_key": "restaurants",
+      "participants": 0,
+      "online": 0,
+      "region": "phuquoc",
+      "listings": 36
+    },
+    {
+      "channel": "@phuquoc_locals",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 98
+    },
+    {
+      "channel": "@phuquoc_market",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 43
+    },
+    {
+      "channel": "@phuquoc_woman",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 70
+    },
+    {
+      "channel": "@saigon_360",
+      "category": "Новости",
+      "category_key": "news",
+      "participants": 0,
+      "online": 0,
+      "region": "hochiminh",
+      "listings": 48
+    },
+    {
+      "channel": "@saigon_sport",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 93
+    },
+    {
+      "channel": "@saigon_tusa",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 0,
+      "online": 0,
+      "region": "hochiminh",
+      "listings": 174
+    },
+    {
+      "channel": "@vietnam_chatt",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 14244,
+      "online": 4006,
+      "region": "hochiminh",
+      "listings": 94
+    },
+    {
+      "channel": "@vietnam_deti",
+      "category": "Развлечения",
+      "category_key": "entertainment",
+      "participants": 0,
+      "online": 0,
+      "region": "nationwide",
+      "listings": 50
+    },
+    {
+      "channel": "@vietnam_food",
+      "category": "Рестораны",
+      "category_key": "restaurants",
+      "participants": 0,
+      "online": 0,
+      "region": "nationwide",
+      "listings": 45
+    },
+    {
+      "channel": "@vietnam_forum",
+      "category": "Новости",
+      "category_key": "news",
+      "participants": 0,
+      "online": 0,
+      "region": "nationwide",
+      "listings": 148
+    },
+    {
+      "channel": "@vietnam_man",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 174
+    },
+    {
+      "channel": "@vietnam_medicina",
+      "category": "Медицина",
+      "category_key": "medicine",
+      "participants": 0,
+      "online": 0,
+      "region": "nationwide",
+      "listings": 93
+    },
+    {
+      "channel": "@vietnam_obmen",
+      "category": "Обмен денег",
+      "category_key": "exchange",
+      "participants": 0,
+      "online": 0,
+      "region": "nationwide",
+      "listings": 77
+    },
+    {
+      "channel": "@vietnam_pitomci",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 94
+    },
+    {
+      "channel": "@vietnam_poputchiki",
+      "category": "Барахолка",
+      "category_key": "marketplace",
+      "participants": 0,
+      "online": 0,
+      "region": "nationwide",
+      "listings": 178
+    },
+    {
+      "channel": "@vietnam_rabota",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 74
+    },
+    {
+      "channel": "@vietnam_rent",
+      "category": "Недвижимость",
+      "category_key": "real_estate",
+      "participants": 0,
+      "online": 0,
+      "region": "nationwide",
+      "listings": 25
+    },
+    {
+      "channel": "@vietnam_ru",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 80
+    },
+    {
+      "channel": "@vietnam_viza",
+      "category": "Визы",
+      "category_key": "visas",
+      "participants": 0,
+      "online": 0,
+      "region": "nationwide",
+      "listings": 96
+    },
+    {
+      "channel": "@vietnam_vizaran",
+      "category": "Визы",
+      "category_key": "visas",
+      "participants": 0,
+      "online": 0,
+      "region": "nationwide",
+      "listings": 66
+    },
+    {
+      "channel": "@vietnam_woman",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 166
+    },
+    {
+      "channel": "@vungtau_360",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 44
+    },
+    {
+      "channel": "@vungtau_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 509,
+      "online": 79,
+      "region": "vungtau",
+      "listings": 100
+    },
+    {
+      "channel": "@znakomstva_vietnam",
+      "category": "Прочее",
+      "category_key": "other",
+      "participants": 0,
+      "online": 0,
+      "region": "other",
+      "listings": 92
+    }
+  ]
+}

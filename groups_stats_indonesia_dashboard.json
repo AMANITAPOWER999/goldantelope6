@@ -1,0 +1,71 @@
+{
+  "updated": "24.12, 07:02",
+  "categories": {
+    "Чат": {
+      "groups": 24,
+      "participants": 159274,
+      "online": 17200,
+      "listings": 307
+    },
+    "Рестораны": {
+      "groups": 3,
+      "participants": 0,
+      "online": 0,
+      "listings": 1
+    },
+    "Недвижимость": {
+      "groups": 17,
+      "participants": 97891,
+      "online": 14056,
+      "listings": 25
+    },
+    "Транспорт": {
+      "groups": 12,
+      "participants": 10203,
+      "online": 835,
+      "listings": 1
+    },
+    "Обмен денег": {
+      "groups": 14,
+      "participants": 26618,
+      "online": 4248,
+      "listings": 76
+    },
+    "Экскурсии": {
+      "groups": 5,
+      "participants": 0,
+      "online": 0,
+      "listings": 32
+    },
+    "Визаран": {
+      "groups": 3,
+      "participants": 0,
+      "online": 0,
+      "listings": 1
+    },
+    "Для детей": {
+      "groups": 5,
+      "participants": 0,
+      "online": 0,
+      "listings": 0
+    },
+    "Медицина": {
+      "groups": 1,
+      "participants": 0,
+      "online": 0,
+      "listings": 6
+    },
+    "Барахолка": {
+      "groups": 2,
+      "participants": 0,
+      "online": 0,
+      "listings": 400
+    },
+    "Новости": {
+      "groups": 1,
+      "participants": 0,
+      "online": 0,
+      "listings": 5
+    }
+  }
+}

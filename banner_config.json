@@ -1,0 +1,39 @@
+{
+  "vietnam": {
+    "web": [
+      "/static/images/banners/vietnam_web_1769256551_Newsletter-Banner-2048-x-512-px.jpg",
+      "/static/images/banners/vietnam_web_1769256707_Copy-of-TP-Festival-Banner-private-messages-2048x512-1.png"
+    ],
+    "mobile": [
+      "/static/images/banners/vietnam_1769232199_ChatGPT_Image_24_._2026_._12_10_37.png",
+      "/static/images/banners/vietnam_1767254417_ChatGPT_Image_1_._2026_._14_59_56.png",
+      "/static/images/banners/vietnam_1767253425_ChatGPT_Image_1_._2026_._14_43_20.png",
+      "/static/images/banners/vietnam_1767255067_ChatGPT_Image_1_._2026_._15_10_38.png",
+      "/static/images/banners/vietnam_1766993907_ChatGPT_Image_29_._2025_._14_37_59.png",
+      "/static/images/banners/vietnam_1766993488_ChatGPT_Image_29_._2025_._14_30_31.png",
+      "/static/images/banners/vietnam_1766994249_ChatGPT_Image_29_._2025_._14_43_50.png",
+      "/static/images/banners/vietnam_1767252790_ChatGPT_Image_1_._2026_._14_32_13.png",
+      "/static/images/banners/vietnam_1767253874_ChatGPT_Image_1_._2026_._14_50_33.png"
+    ]
+  },
+  "thailand": {
+    "web": [],
+    "mobile": []
+  },
+  "india": {
+    "web": [
+      "/static/images/banners/india_1767258371_ChatGPT_Image_1_._2026_._16_05_27.png"
+    ],
+    "mobile": [
+      "/static/images/banners/india_1767258371_ChatGPT_Image_1_._2026_._16_05_27.png"
+    ]
+  },
+  "indonesia": {
+    "web": [
+      "/static/images/banners/indonesia_1767258646_ChatGPT_Image_1_._2026_._16_10_17.png"
+    ],
+    "mobile": [
+      "/static/images/banners/indonesia_1767258646_ChatGPT_Image_1_._2026_._16_10_17.png"
+    ]
+  }
+}

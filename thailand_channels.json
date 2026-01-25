@@ -1,0 +1,49 @@
+{
+  "country": "Thailand",
+  "country_code": "th",
+  "flag": "🇹🇭",
+  "currency": "THB",
+  "channels": {
+    "chat": [
+      "thailand_chat",
+      "bangkok_chat",
+      "phuket_chat",
+      "pattaya_chat",
+      "chiang_mai_chat",
+      "hua_hin_chat",
+      "krabi_chat"
+    ],
+    "restaurants": [
+      "thailand_food",
+      "bangkok_restaurants"
+    ],
+    "real_estate": [
+      "thailand_rent",
+      "bangkok_apartments"
+    ],
+    "exchange": [
+      "thailand_exchange"
+    ],
+    "tours": [
+      "thailand_tours"
+    ],
+    "visas": [
+      "thailand_visa"
+    ],
+    "entertainment": [
+      "thailand_kids"
+    ],
+    "medicine": [
+      "thailand_hospital"
+    ],
+    "marketplace": [
+      "thailand_marketplace"
+    ],
+    "news": [
+      "thailand_news"
+    ],
+    "transport": [
+      "thailand_motorbike"
+    ]
+  }
+}

@@ -1,0 +1,47 @@
+modules = ["web", "python-3.11"]
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+packages = ["cargo", "freetype", "lcms2", "libiconv", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "openssl", "rustc", "tcl", "tk", "zlib"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Telegram Parser Dashboard"
+
+[[workflows.workflow]]
+name = "Telegram Parser Dashboard"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python app.py"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["gunicorn", "--bind=0.0.0.0:5000", "--reuse-port", "app:app"]
+
+[userenv]
+
+[userenv.shared]
+BUNNY_CDN_API_KEY = "c88e0b0b-d63c-4a45-8b3d1819830a-c07a-4ddb"
+BUNNY_CDN_STORAGE_NAME = "goldantelope"
+BUNNY_CDN_STORAGE_ZONE = "storage.bunnycdn.com"
+TELEGRAM_CHAT_ID = "7373419661"

@@ -1,0 +1,266 @@
+{
+  "updated": "2025-12-24T04:49:17.220597",
+  "groups": [
+    {
+      "channel": "@wonderloftgoa",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 1032,
+      "online": 114,
+      "region": "goa",
+      "listings": 67
+    },
+    {
+      "channel": "@kokoindiarussia",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 172,
+      "online": 0,
+      "region": "goa",
+      "listings": 5
+    },
+    {
+      "channel": "@arambol_india",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 13429,
+      "online": 1300,
+      "region": "goa",
+      "listings": 81
+    },
+    {
+      "channel": "@Indiagoachat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 8323,
+      "online": 967,
+      "region": "goa",
+      "listings": 64
+    },
+    {
+      "channel": "@goa_topchat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 3405,
+      "online": 283,
+      "region": "goa",
+      "listings": 41
+    },
+    {
+      "channel": "@goa_datiing",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 2704,
+      "online": 82,
+      "region": "goa",
+      "listings": 69
+    },
+    {
+      "channel": "@arendavgoa",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 1603,
+      "online": 150,
+      "region": "goa",
+      "listings": 73
+    },
+    {
+      "channel": "@medicine_india_goa",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 5301,
+      "online": 539,
+      "region": "goa",
+      "listings": 71
+    },
+    {
+      "channel": "@visaindia_chat",
+      "category": "Визаран",
+      "category_key": "visas",
+      "participants": 15982,
+      "online": 1920,
+      "region": "goa",
+      "listings": 90
+    },
+    {
+      "channel": "@russian_taxi_goa",
+      "category": "Транспорт",
+      "category_key": "transport",
+      "participants": 1153,
+      "online": 80,
+      "region": "goa",
+      "listings": 50
+    },
+    {
+      "channel": "@rushousemumbai",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 393,
+      "online": 38,
+      "region": "mumbai_bangalore",
+      "listings": 17
+    },
+    {
+      "channel": "@india_russia_r",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 406,
+      "online": 14,
+      "region": "mumbai_bangalore",
+      "listings": 18
+    },
+    {
+      "channel": "@bharatrussia",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 1013,
+      "online": 0,
+      "region": "mumbai_bangalore",
+      "listings": 82
+    },
+    {
+      "channel": "@Russiansinbangalore",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 104,
+      "online": 0,
+      "region": "mumbai_bangalore",
+      "listings": 12
+    },
+    {
+      "channel": "@rusindia",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 1006,
+      "online": 5,
+      "region": "mumbai_bangalore",
+      "listings": 50
+    },
+    {
+      "channel": "@indiya_chatik",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 5676,
+      "online": 772,
+      "region": "mumbai_bangalore",
+      "listings": 77
+    },
+    {
+      "channel": "@Bchat_India",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 647,
+      "online": 90,
+      "region": "mumbai_bangalore",
+      "listings": 36
+    },
+    {
+      "channel": "@bestg5",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 8974,
+      "online": 948,
+      "region": "mumbai_bangalore",
+      "listings": 67
+    },
+    {
+      "channel": "@svoi_chats",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 1976,
+      "online": 0,
+      "region": "mumbai_bangalore",
+      "listings": 2
+    },
+    {
+      "channel": "@RusEmbIndia",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 3533,
+      "online": 0,
+      "region": "delhi_jaipur",
+      "listings": 32
+    },
+    {
+      "channel": "@russtudentsindia",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 138,
+      "online": 18,
+      "region": "delhi_jaipur",
+      "listings": 27
+    },
+    {
+      "channel": "@india_info_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 4472,
+      "online": 468,
+      "region": "delhi_jaipur",
+      "listings": 45
+    },
+    {
+      "channel": "@goaindiachat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 25550,
+      "online": 2033,
+      "region": "delhi_jaipur",
+      "listings": 0
+    },
+    {
+      "channel": "@rishikesh_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 1,
+      "online": 1,
+      "region": "delhi_jaipur",
+      "listings": 1
+    },
+    {
+      "channel": "@jaipur_chat",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 15,
+      "online": 0,
+      "region": "delhi_jaipur",
+      "listings": 0
+    },
+    {
+      "channel": "@indianviza",
+      "category": "Визаран",
+      "category_key": "visas",
+      "participants": 4182,
+      "online": 467,
+      "region": "delhi_jaipur",
+      "listings": 86
+    },
+    {
+      "channel": "@chennai_ru",
+      "category": "Чат",
+      "category_key": "chat",
+      "participants": 259,
+      "online": 19,
+      "region": "chennai_other",
+      "listings": 73
+    },
+    {
+      "channel": "@india_med",
+      "category": "Медицина",
+      "category_key": "medicine",
+      "participants": 1026,
+      "online": 0,
+      "region": "chennai_other",
+      "listings": 24
+    },
+    {
+      "channel": "@Arenda_Avto_Indiya",
+      "category": "Транспорт",
+      "category_key": "bikes",
+      "participants": 2057,
+      "online": 118,
+      "region": "transport",
+      "listings": 22
+    }
+  ]
+}
