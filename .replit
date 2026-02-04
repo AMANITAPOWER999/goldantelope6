@@ -4,7 +4,7 @@ expertMode = true
 
 [nix]
 channel = "stable-25_05"
-packages = ["cargo", "freetype", "lcms2", "libiconv", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "openssl", "postgresql", "rustc", "tcl", "tk", "zlib"]
+packages = ["cacert", "cargo", "freetype", "lcms2", "libiconv", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "openssl", "postgresql", "rustc", "tcl", "tk", "zlib"]
 
 [workflows]
 runButton = "Project"
@@ -27,7 +27,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload --timeout 120 main:app"
+args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
 waitForPort = 5000
 
 [[ports]]
