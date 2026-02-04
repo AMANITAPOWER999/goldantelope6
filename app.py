@@ -12,10 +12,15 @@ import threading
 # Lock for file operations to prevent race conditions
 file_lock = threading.Lock()
 
+# Data cache to prevent heavy disk I/O
+data_cache = {}
+DATA_CACHE_TTL = 30 # Cache data for 30 seconds
+
 GOOGLE_AI_API_KEY = os.environ.get('GOOGLE_AI_API_KEY', '')
 translation_cache = {}
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
+app.secret_key = os.environ.get("SESSION_SECRET")
 
 online_users = {}
 ONLINE_TIMEOUT = 60
@@ -101,54 +106,86 @@ def create_empty_data():
     }
 
 def load_data(country='vietnam'):
-    country_file = f"listings_{country}.json"
-    if os.path.exists(country_file):
-        with open(country_file, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            if isinstance(data, dict):
-                return data
-            
-            # Если данные в файле - список, распределяем по категориям
-            result = create_empty_data()
-            category_map = {
-                'bikes': 'transport',
-                'real_estate': 'real_estate',
-                'exchange': 'money_exchange',
-                'money_exchange': 'money_exchange',
-                'food': 'restaurants',
-                'restaurants': 'restaurants'
-            }
-            for item in data:
-                if not isinstance(item, dict): continue
-                cat = item.get('category', 'chat')
-                mapped_cat = category_map.get(cat, cat)
-                if mapped_cat in result:
-                    result[mapped_cat].append(item)
-            return result
+    now = time.time()
+    if country in data_cache and now - data_cache[country]['time'] < DATA_CACHE_TTL:
+        return data_cache[country]['data']
     
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, 'r', encoding='utf-8') as f:
-            all_data = json.load(f)
-            if country in all_data:
-                return all_data[country]
-    return create_empty_data()
+    country_file = f"listings_{country}.json"
+    result = create_empty_data()
+    
+    if os.path.exists(country_file):
+        try:
+            with open(country_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                if isinstance(data, dict):
+                    result = data
+                else:
+                    # Если данные в файле - список, распределяем по категориям
+                    category_map = {
+                        'bikes': 'transport',
+                        'real_estate': 'real_estate',
+                        'exchange': 'money_exchange',
+                        'money_exchange': 'money_exchange',
+                        'food': 'restaurants',
+                        'restaurants': 'restaurants'
+                    }
+                    for item in data:
+                        if not isinstance(item, dict): continue
+                        cat = item.get('category', 'chat')
+                        mapped_cat = category_map.get(cat, cat)
+                        if mapped_cat in result:
+                            result[mapped_cat].append(item)
+        except Exception as e:
+            print(f"Error loading country file {country_file}: {e}")
+    
+    elif os.path.exists(DATA_FILE):
+        try:
+            with open(DATA_FILE, 'r', encoding='utf-8') as f:
+                all_data = json.load(f)
+                if country in all_data:
+                    result = all_data[country]
+        except Exception as e:
+            print(f"Error loading DATA_FILE for {country}: {e}")
+            
+    data_cache[country] = {'data': result, 'time': now}
+    return result
 
 def load_all_data():
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return {
+    now = time.time()
+    if 'all' in data_cache and now - data_cache['all']['time'] < DATA_CACHE_TTL:
+        return data_cache['all']['data']
+        
+    result = {
         'vietnam': create_empty_data(),
         'thailand': create_empty_data(),
         'india': create_empty_data(),
         'indonesia': create_empty_data()
     }
+    
+    if os.path.exists(DATA_FILE):
+        try:
+            with open(DATA_FILE, 'r', encoding='utf-8') as f:
+                result = json.load(f)
+        except Exception as e:
+            print(f"Error loading DATA_FILE: {e}")
+            # Try to recover from country files if DATA_FILE is corrupted
+            for country in result.keys():
+                result[country] = load_data(country)
+            
+    data_cache['all'] = {'data': result, 'time': now}
+    return result
 
 def save_data(country='vietnam', data=None):
     if not data or not isinstance(data, dict):
         return
     
     with file_lock:
+        # Инвалидируем кэш
+        if country in data_cache:
+            del data_cache[country]
+        if 'all' in data_cache:
+            del data_cache['all']
+            
         # Сохраняем в файл страны
         country_file = f"listings_{country}.json"
         try:
@@ -159,6 +196,7 @@ def save_data(country='vietnam', data=None):
         
         # Синхронизируем с общим файлом listings_data.json
         try:
+            # Load current all_data without using load_all_data to avoid recursion or stale cache
             all_data = {}
             if os.path.exists(DATA_FILE):
                 with open(DATA_FILE, 'r', encoding='utf-8') as f:
@@ -167,8 +205,22 @@ def save_data(country='vietnam', data=None):
             all_data[country] = data
             with open(DATA_FILE, 'w', encoding='utf-8') as f:
                 json.dump(all_data, f, ensure_ascii=False, indent=2)
+            
+            # Update cache
+            data_cache['all'] = {'data': all_data, 'time': time.time()}
+            data_cache[country] = {'data': data, 'time': time.time()}
         except Exception as e:
             print(f"Error syncing with listings_data.json: {e}")
+
+@app.errorhandler(500)
+def handle_500(e):
+    return jsonify({'error': 'Internal Server Error', 'message': str(e)}), 500
+
+@app.errorhandler(404)
+def handle_404(e):
+    if request.path.startswith('/api/'):
+        return jsonify({'error': 'Not Found', 'message': 'API route not found'}), 404
+    return render_template('dashboard.html')
 
 @app.route('/')
 def index():
