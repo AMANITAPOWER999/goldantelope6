@@ -6,6 +6,8 @@
   "deploy": {
     "runtime": "V2",
     "numReplicas": 1,
-    "restartPolicyType": "ON_FAILURE"
+    "restartPolicyType": "ON_FAILURE",
+    "healthcheckPath": null,
+    "healthcheckTimeout": null
   }
 }
