@@ -4630,6 +4630,40 @@
                     </div>
                 </div>
                 
+                <div id="edit-entertainment-fields" style="display: none;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; font-weight: 600; font-size: 13px; color: #333;">⭐ Фишка:</label>
+                            <input type="text" id="edit-entertainment-feature" placeholder="Живая музыка, DJ..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                        </div>
+                        <div>
+                            <label style="display: block; margin-bottom: 4px; font-weight: 600; font-size: 13px; color: #333;">👥 Вместимость:</label>
+                            <input type="text" id="edit-entertainment-capacity" placeholder="до 50" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; margin-bottom: 4px; font-weight: 600; font-size: 13px; color: #333;">🏙️ Город:</label>
+                        <select id="edit-entertainment-city" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                            <option value="Nha Trang">Нячанг</option>
+                            <option value="Ho Chi Minh">Хошимин</option>
+                            <option value="Da Nang">Дананг</option>
+                            <option value="Hanoi">Ханой</option>
+                            <option value="Phu Quoc">Фукуок</option>
+                            <option value="Phan Thiet">Фантьет</option>
+                            <option value="Cam Ranh">Камрань</option>
+                            <option value="Da Lat">Далат</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; margin-bottom: 4px; font-weight: 600; font-size: 13px; color: #333;">📍 Локация:</label>
+                        <input type="text" id="edit-entertainment-location" placeholder="Пляж, клуб..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; margin-bottom: 4px; font-weight: 600; font-size: 13px; color: #4285F4;">🗺️ Google Maps:</label>
+                        <input type="text" id="edit-entertainment-geolocation" placeholder="https://maps.google.com/..." style="width: 100%; padding: 10px; border: 1px solid #4285F4; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                    </div>
+                </div>
+                
                 <div id="edit-status" style="margin-bottom: 12px; font-size: 13px; display: none;"></div>
                 
                 <div style="display: flex; gap: 10px;">
@@ -9237,6 +9271,10 @@
                 case 'kids':
                     openKidsPhotoEdit(listingId);
                     return;
+                case 'entertainment':
+                    // We'll use the generic modal but specialized fields for now
+                    // Or we could create openEntertainmentPhotoEdit later
+                    break;
                 case 'money_exchange':
                 case 'exchange':
                     openExchangePhotoEdit(listingId);
@@ -9289,7 +9327,17 @@
             visasFields.style.display = 'none';
             photosessionFields.style.display = 'none';
             medicineFields.style.display = 'none';
+            if (document.getElementById('edit-entertainment-fields')) {
+                document.getElementById('edit-entertainment-fields').style.display = 'none';
+            }
             realestateFields.style.display = 'block';
+            
+            if (category === 'entertainment') {
+                realestateFields.style.display = 'none';
+                if (document.getElementById('edit-entertainment-fields')) {
+                    document.getElementById('edit-entertainment-fields').style.display = 'block';
+                }
+            }
             
             try {
                 const response = await fetch('/api/admin/get-listing', {
@@ -9352,6 +9400,12 @@
                     document.getElementById('edit-visas-service').value = data.service_type || 'visarun';
                     document.getElementById('edit-visas-city').value = data.city || '';
                     document.getElementById('edit-visas-price').value = data.price || '';
+                } else if (category === 'entertainment') {
+                    document.getElementById('edit-entertainment-feature').value = data.feature || '';
+                    document.getElementById('edit-entertainment-capacity').value = data.capacity || '';
+                    document.getElementById('edit-entertainment-city').value = data.city || 'Nha Trang';
+                    document.getElementById('edit-entertainment-location').value = data.location || '';
+                    document.getElementById('edit-entertainment-geolocation').value = data.geolocation || '';
                 } else if (category === 'news' || category === 'photosession') {
                     document.getElementById('edit-photosession-type').value = data.photo_type || 'portrait';
                     document.getElementById('edit-photosession-city').value = data.city || '';
@@ -9391,6 +9445,17 @@
                 ].filter(t => t).join(',') || null
             };
             
+            const isEntertainment = category === 'entertainment';
+            if (document.getElementById('edit-entertainment-fields')) document.getElementById('edit-entertainment-fields').style.display = isEntertainment ? 'block' : 'none';
+            
+            if (isEntertainment) {
+                updates.feature = document.getElementById('edit-entertainment-feature').value;
+                updates.capacity = document.getElementById('edit-entertainment-capacity').value;
+                updates.city = document.getElementById('edit-entertainment-city').value;
+                updates.location = document.getElementById('edit-entertainment-location').value;
+                updates.geolocation = document.getElementById('edit-entertainment-geolocation').value;
+            }
+
             if (category === 'restaurants') {
                 updates.city = document.getElementById('edit-city').value;
                 updates.kitchen = document.getElementById('edit-kitchen').value;
