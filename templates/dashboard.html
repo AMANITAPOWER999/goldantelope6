@@ -4100,6 +4100,95 @@
             </div>
         </div>
 
+        <!-- Модальное окно для редактирования "Развлечения" с 4 фото -->
+        <div id="entertainment-edit-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1001; align-items: center; justify-content: center; overflow-y: auto;">
+            <div style="background: white; border-radius: 12px; padding: 20px; max-width: 600px; width: 90%; margin: 20px auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
+                    <h3 style="margin: 0; color: #4CAF50;">🎭 Редактировать "Развлечения"</h3>
+                    <button onclick="closeEntertainmentEditModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
+                </div>
+                <p style="margin: 0 0 15px 0; color: #666; font-size: 13px;" id="entertainment-edit-id"></p>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Название *</label>
+                    <input type="text" id="entertainment-edit-title" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">⭐ Особенности</label>
+                    <input type="text" id="entertainment-edit-feature" placeholder="Например: Живая музыка, Караоке" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">👥 Вместимость</label>
+                    <input type="text" id="entertainment-edit-capacity" placeholder="Например: до 50 человек" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">Описание *</label>
+                    <textarea id="entertainment-edit-desc" rows="4" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; resize: vertical;"></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">📍 Локация</label>
+                        <input type="text" id="entertainment-edit-location" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">🏙️ Город</label>
+                        <select id="entertainment-edit-city" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                            <option value="Nha Trang">Нячанг</option>
+                            <option value="Ho Chi Minh">Хошимин</option>
+                            <option value="Da Nang">Дананг</option>
+                            <option value="Hanoi">Ханой</option>
+                            <option value="Phu Quoc">Фукуок</option>
+                            <option value="Vung Tau">Вунгтау</option>
+                            <option value="Phan Thiet">Фантьет</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">🗺️ Google Maps ссылка</label>
+                    <input type="text" id="entertainment-edit-google-maps" placeholder="https://goo.gl/maps/..." style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">👤 Контакт</label>
+                        <input type="text" id="entertainment-edit-contact" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">📱 WhatsApp</label>
+                        <input type="text" id="entertainment-edit-whatsapp" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">✈️ Telegram (@username)</label>
+                    <input type="text" id="entertainment-edit-telegram" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                </div>
+
+                <div style="margin-bottom: 15px; background: #f9f9f9; padding: 15px; border-radius: 8px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: #333;">📷 Фото (до 4 шт)</label>
+                    <div id="entertainment-edit-photos-preview" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px;"></div>
+                    <div class="photo-upload-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                        <div class="photo-upload-wrapper" style="position: relative;"><input type="file" id="entertainment-edit-photo-0" accept="image/*" onchange="previewEntertainmentEditPhoto(0)"><span class="file-placeholder">Фото 1</span></div>
+                        <div class="photo-upload-wrapper" style="position: relative;"><input type="file" id="entertainment-edit-photo-1" accept="image/*" onchange="previewEntertainmentEditPhoto(1)"><span class="file-placeholder">Фото 2</span></div>
+                        <div class="photo-upload-wrapper" style="position: relative;"><input type="file" id="entertainment-edit-photo-2" accept="image/*" onchange="previewEntertainmentEditPhoto(2)"><span class="file-placeholder">Фото 3</span></div>
+                        <div class="photo-upload-wrapper" style="position: relative;"><input type="file" id="entertainment-edit-photo-3" accept="image/*" onchange="previewEntertainmentEditPhoto(3)"><span class="file-placeholder">Фото 4</span></div>
+                    </div>
+                </div>
+                
+                <div id="entertainment-edit-status" style="display: none; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; font-weight: 600;"></div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="saveEntertainmentPhotoEdit()" style="flex: 1; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">💾 Сохранить</button>
+                    <button onclick="closeEntertainmentEditModal()" style="flex: 1; padding: 12px; background: #eee; color: #333; border: none; border-radius: 6px; cursor: pointer; font-size: 14px;">Отмена</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Модальное окно для редактирования "Рестораны" с 4 фото -->
         <div id="restaurant-edit-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1001; align-items: center; justify-content: center; overflow-y: auto;">
             <div style="background: white; border-radius: 12px; padding: 20px; max-width: 600px; width: 90%; margin: 20px auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
@@ -8972,6 +9061,59 @@
             } catch (err) { console.error('Error saving:', err); status.textContent = '❌ Ошибка сети'; status.style.background = '#ffebee'; status.style.color = '#c62828'; }
         }
 
+        // === Функции для редактирования Развлечения ===
+        let currentEntertainmentEditId = null;
+        async function openEntertainmentPhotoEdit(listingId, event) {
+            if (event) event.stopPropagation();
+            currentEntertainmentEditId = listingId;
+            try {
+                const response = await fetch('/api/admin/get-listing', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: adminPassword_val, country: currentCountry, category: 'entertainment', listing_id: listingId }) });
+                const data = await response.json();
+                if (data.error) { alert('Ошибка: ' + data.error); return; }
+                document.getElementById('entertainment-edit-id').textContent = 'ID: ' + listingId;
+                document.getElementById('entertainment-edit-title').value = data.title || '';
+                document.getElementById('entertainment-edit-feature').value = data.feature || '';
+                document.getElementById('entertainment-edit-capacity').value = data.capacity || '';
+                document.getElementById('entertainment-edit-desc').value = data.description || '';
+                document.getElementById('entertainment-edit-location').value = data.location || '';
+                document.getElementById('entertainment-edit-city').value = data.city || 'Nha Trang';
+                document.getElementById('entertainment-edit-google-maps').value = data.google_maps || '';
+                document.getElementById('entertainment-edit-contact').value = data.contact_name || '';
+                document.getElementById('entertainment-edit-whatsapp').value = data.whatsapp || '';
+                document.getElementById('entertainment-edit-telegram').value = data.telegram || '';
+                document.getElementById('entertainment-edit-status').style.display = 'none';
+                displayEditPhotosPreview('entertainment-edit-photos-preview', data);
+                for (let i = 0; i < 4; i++) { const el = document.getElementById('entertainment-edit-photo-' + i); if (el) el.value = ''; }
+                document.getElementById('entertainment-edit-modal').style.display = 'flex';
+            } catch (err) { console.error('Error loading entertainment:', err); alert('Ошибка при загрузке объявления'); }
+        }
+        function closeEntertainmentEditModal() { document.getElementById('entertainment-edit-modal').style.display = 'none'; }
+        function previewEntertainmentEditPhoto(index) { previewEditPhotoGeneric('entertainment-edit-photo-', 'entertainment-edit-photos-preview', index); }
+        async function saveEntertainmentPhotoEdit() {
+            const status = document.getElementById('entertainment-edit-status');
+            status.style.display = 'block'; status.textContent = '⏳ Сохранение...'; status.style.background = '#fff3e0'; status.style.color = '#e65100';
+            try {
+                const formData = new FormData();
+                formData.append('password', adminPassword_val); formData.append('country', currentCountry);
+                formData.append('category', 'entertainment'); formData.append('listing_id', currentEntertainmentEditId);
+                formData.append('title', document.getElementById('entertainment-edit-title').value);
+                formData.append('feature', document.getElementById('entertainment-edit-feature').value);
+                formData.append('capacity', document.getElementById('entertainment-edit-capacity').value);
+                formData.append('description', document.getElementById('entertainment-edit-desc').value);
+                formData.append('location', document.getElementById('entertainment-edit-location').value);
+                formData.append('city', document.getElementById('entertainment-edit-city').value);
+                formData.append('google_maps', document.getElementById('entertainment-edit-google-maps').value);
+                formData.append('contact_name', document.getElementById('entertainment-edit-contact').value);
+                formData.append('whatsapp', document.getElementById('entertainment-edit-whatsapp').value);
+                formData.append('telegram', document.getElementById('entertainment-edit-telegram').value);
+                for (let i = 0; i < 4; i++) { const file = document.getElementById('entertainment-edit-photo-' + i)?.files[0]; if (file) formData.append('photo_' + i, file); }
+                const response = await fetch('/api/admin/update-listing-with-photo', { method: 'POST', body: formData });
+                const data = await response.json();
+                if (data.success) { status.textContent = '✅ Сохранено!'; status.style.background = '#e8f5e9'; status.style.color = '#2e7d32'; setTimeout(() => { closeEntertainmentEditModal(); loadListings('entertainment'); }, 1000); }
+                else { status.textContent = '❌ ' + (data.error || 'Ошибка'); status.style.background = '#ffebee'; status.style.color = '#c62828'; }
+            } catch (err) { console.error('Error saving:', err); status.textContent = '❌ Ошибка сети'; status.style.background = '#ffebee'; status.style.color = '#c62828'; }
+        }
+
         // === Функции для редактирования Рестораны ===
         let currentRestaurantEditId = null;
         async function openRestaurantPhotoEdit(listingId, event) {
@@ -9278,9 +9420,8 @@
                     openKidsPhotoEdit(listingId);
                     return;
                 case 'entertainment':
-                    // We'll use the generic modal but specialized fields for now
-                    // Or we could create openEntertainmentPhotoEdit later
-                    break;
+                    openEntertainmentPhotoEdit(listingId);
+                    return;
                 case 'money_exchange':
                 case 'exchange':
                     openExchangePhotoEdit(listingId);
