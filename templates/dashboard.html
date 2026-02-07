@@ -1795,6 +1795,7 @@
                             <button type="button" onclick="loadExchangeCaptcha()" style="padding: 10px; background: #eee; border: none; border-radius: 6px; cursor: pointer;">🔄</button>
                         </div>
                         <input type="hidden" id="exchange-captcha-token">
+                        <input type="hidden" id="exchange-captcha-answer">
                     </div>
                     <div id="exchange-submit-status" style="margin-bottom: 15px; font-size: 14px; display: none;"></div>
                     <button type="submit" style="width: 100%; padding: 15px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 16px;">📤 Отправить на модерацию</button>
@@ -1884,6 +1885,7 @@
                             <button type="button" onclick="loadChildrenCaptcha()" style="padding: 10px; background: #eee; border: none; border-radius: 6px; cursor: pointer;">🔄</button>
                         </div>
                         <input type="hidden" id="children-captcha-token">
+                        <input type="hidden" id="children-captcha-answer">
                     </div>
                     <div id="children-submit-status" style="margin-bottom: 15px; font-size: 14px; display: none;"></div>
                     <button type="submit" style="width: 100%; padding: 15px; background: #E91E63; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 16px;">📤 Отправить на модерацию</button>
@@ -1961,6 +1963,7 @@
                             <button type="button" onclick="loadMarketplaceCaptcha()" style="padding: 10px; background: #eee; border: none; border-radius: 6px; cursor: pointer;">🔄</button>
                         </div>
                         <input type="hidden" id="marketplace-captcha-token">
+                        <input type="hidden" id="marketplace-captcha-answer">
                     </div>
                     <div id="marketplace-submit-status" style="margin-bottom: 15px; font-size: 14px; display: none;"></div>
                     <button type="submit" style="width: 100%; padding: 15px; background: #795548; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 16px;">📤 Отправить на модерацию</button>
@@ -2045,6 +2048,7 @@
                             <button type="button" onclick="loadVisasCaptcha()" style="padding: 10px; background: #eee; border: none; border-radius: 6px; cursor: pointer;">🔄</button>
                         </div>
                         <input type="hidden" id="visas-captcha-token">
+                        <input type="hidden" id="visas-captcha-answer">
                     </div>
                     <div id="visas-submit-status" style="margin-bottom: 15px; font-size: 14px; display: none;"></div>
                     <button type="submit" style="width: 100%; padding: 15px; background: #00BCD4; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 16px;">📤 Отправить на модерацию</button>
@@ -2123,6 +2127,7 @@
                             <button type="button" onclick="loadPhotosessionCaptcha()" style="padding: 10px; background: #eee; border: none; border-radius: 6px; cursor: pointer;">🔄</button>
                         </div>
                         <input type="hidden" id="photosession-captcha-token">
+                        <input type="hidden" id="photosession-captcha-answer">
                     </div>
                     <div id="photosession-submit-status" style="margin-bottom: 15px; font-size: 14px; display: none;"></div>
                     <button type="submit" style="width: 100%; padding: 15px; background: #673AB7; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 16px;">📤 Отправить на модерацию</button>
@@ -2201,6 +2206,7 @@
                             <button type="button" onclick="loadMedicineCaptcha()" style="padding: 10px; background: #eee; border: none; border-radius: 6px; cursor: pointer;">🔄</button>
                         </div>
                         <input type="hidden" id="medicine-captcha-token">
+                        <input type="hidden" id="medicine-captcha-answer">
                     </div>
                     <div id="medicine-submit-status" style="margin-bottom: 15px; font-size: 14px; display: none;"></div>
                     <button type="submit" style="width: 100%; padding: 15px; background: #F44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 16px;">📤 Отправить на модерацию</button>
@@ -10249,6 +10255,9 @@
                 .then(data => {
                     document.getElementById('visas-captcha-question').textContent = data.question;
                     document.getElementById('visas-captcha-token').value = data.token;
+                    // Синхронизация для тех форм, которые используют visas-captcha-token как основной
+                    const hiddenInput = document.getElementById('visas-captcha-answer');
+                    if (hiddenInput) hiddenInput.value = data.token;
                 });
         }
 
@@ -10258,6 +10267,8 @@
                 .then(data => {
                     document.getElementById('exchange-captcha-question').textContent = data.question;
                     document.getElementById('exchange-captcha-token').value = data.token;
+                    const hiddenInput = document.getElementById('exchange-captcha-answer');
+                    if (hiddenInput) hiddenInput.value = data.token;
                 });
         }
 
@@ -10267,6 +10278,8 @@
                 .then(data => {
                     document.getElementById('children-captcha-question').textContent = data.question;
                     document.getElementById('children-captcha-token').value = data.token;
+                    const hiddenInput = document.getElementById('children-captcha-answer');
+                    if (hiddenInput) hiddenInput.value = data.token;
                 });
         }
 
@@ -10276,6 +10289,8 @@
                 .then(data => {
                     document.getElementById('marketplace-captcha-question').textContent = data.question;
                     document.getElementById('marketplace-captcha-token').value = data.token;
+                    const hiddenInput = document.getElementById('marketplace-captcha-answer');
+                    if (hiddenInput) hiddenInput.value = data.token;
                 });
         }
 
@@ -10285,6 +10300,8 @@
                 .then(data => {
                     document.getElementById('photoshoot-captcha-question').textContent = data.question;
                     document.getElementById('photoshoot-captcha-answer').value = data.token;
+                    const hiddenToken = document.getElementById('photoshoot-captcha-token');
+                    if (hiddenToken) hiddenToken.value = data.token;
                 });
         }
 
@@ -10360,6 +10377,8 @@
                 .then(data => {
                     document.getElementById('photosession-captcha-question').textContent = data.question;
                     document.getElementById('photosession-captcha-token').value = data.token;
+                    const hiddenAnswer = document.getElementById('photosession-captcha-answer');
+                    if (hiddenAnswer) hiddenAnswer.value = data.token;
                 });
         }
 
@@ -10369,6 +10388,8 @@
                 .then(data => {
                     document.getElementById('medicine-captcha-question').textContent = data.question;
                     document.getElementById('medicine-captcha-token').value = data.token;
+                    const hiddenAnswer = document.getElementById('medicine-captcha-answer');
+                    if (hiddenAnswer) hiddenAnswer.value = data.token;
                 });
         }
 
