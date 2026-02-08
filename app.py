@@ -3526,17 +3526,18 @@ def admin_delete_chat_message():
 
 
 
+
 def run_bot():
     try:
         import asyncio
         import json
         import os
-        import glob
         from telethon import TelegramClient
         
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         
+        # Берем переменные окружения Railway
         api_id = os.environ.get('TELEGRAM_API_ID')
         api_hash = os.environ.get('TELEGRAM_API_HASH')
         bot_token = os.environ.get('telegram_bot_token')
@@ -3546,71 +3547,64 @@ def run_bot():
         
         async def monitor():
             await client.start(bot_token=bot_token)
-            print("--- БОТ ЗАПУЩЕН: ФОРМАТ АЛЬБОМ + ПОЛНОЕ ОПИСАНИЕ ---")
+            print("--- МОНИТОРИНГ ЗАПУЩЕН (4 ФОТО + ПОЛНОЕ ОПИСАНИЕ) ---")
+            
             while True:
                 try:
                     fname = 'ads_channels_vietnam.json'
-                    if os.path.exists(fname):
-                        with open(fname, 'r', encoding='utf-8') as f:
-                            data = json.load(f)
+                    if not os.path.exists(fname):
+                        await asyncio.sleep(10); continue
                         
-                        changed = False
-                        for ch in data.get('channels', []):
-                            # Отправляем если одобрено и еще не было в ТГ
-                            if ch.get('approved') == True and not ch.get('sent_to_tg'):
-                                ad_id = ch.get('id', '').replace('ad_', '')
-                                
-                                # Формируем полное описание
-                                name = ch.get('name', 'Без названия')
-                                city = ch.get('city', 'Не указан')
-                                price = ch.get('price', '0')
-                                contact = ch.get('contact', 'Не указан')
-                                category = ch.get('category', 'Общее')
-                                members = ch.get('members', 'н/д')
-                                
-                                caption = (
-                                    f"🔥 **НОВОЕ ПРЕДЛОЖЕНИЕ**\n\n"
-                                    f"📝 **Название:** {name}\n"
-                                    f"🏢 **Категория:** #{category}\n"
-                                    f"📍 **Город:** {city}\n"
-                                    f"💰 **Цена:** {price} USD\n"
-                                    f"👥 **Аудитория:** {members}\n"
-                                    f"📞 **Контакт:** {contact}\n\n"
-                                    f"✅ _Объявление проверено модератором_"
-                                )
+                    with open(fname, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                    
+                    changed = False
+                    for ch in data.get('channels', []):
+                        # Условие: одобрено и еще не отправлено (нет метки sent_to_tg)
+                        if ch.get('approved') == True and not ch.get('sent_to_tg'):
+                            ad_id = ch.get('id', '').replace('ad_', '')
+                            
+                            # Собираем ПОЛНОЕ описание
+                            caption = (
+                                f"🌟 **НОВОЕ ОБЪЯВЛЕНИЕ**\n\n"
+                                f"📝 **Название:** {ch.get('name', 'N/A')}\n"
+                                f"📂 **Категория:** #{ch.get('category', 'vietnam').replace(' ', '_')}\n"
+                                f"📍 **Город:** {ch.get('city', 'Не указан')}\n"
+                                f"💰 **Цена:** {ch.get('price', '0')} USD\n"
+                                f"📞 **Контакт:** {ch.get('contact', 'N/A')}\n"
+                                f"👥 **Охват:** {ch.get('members', '0')} подп."
+                            )
 
-                                # Поиск до 4-х изображений в папке banners по ID
-                                # Ищем файлы, содержащие ID объявления в имени
-                                photo_paths = []
-                                patterns = [
-                                    f"static/images/banners/*{ad_id}*",
-                                    f"static/images/*{ad_id}*"
-                                ]
-                                
-                                for p in patterns:
-                                    matches = glob.glob(p)
-                                    if matches:
-                                        photo_paths.extend(matches)
-                                
-                                # Убираем дубликаты и берем первые 4
-                                photo_paths = list(dict.fromkeys(photo_paths))[:4]
+                            # ТОТАЛЬНЫЙ ПОИСК ФОТО (ищем везде в static)
+                            photo_paths = []
+                            for root, dirs, files in os.walk("static"):
+                                for file in files:
+                                    if ad_id in file and file.lower().endswith(('.png', '.jpg', '.jpeg')):
+                                        photo_paths.append(os.path.join(root, file))
+                            
+                            # Берем первые 4 фото
+                            final_photos = sorted(list(set(photo_paths)))[:4]
 
-                                if photo_paths:
-                                    print(f"--- ОТПРАВКА АЛЬБОМА ({len(photo_paths)} фото) ДЛЯ {ad_id} ---")
-                                    await client.send_file(int(channel_id), photo_paths, caption=caption, parse_mode='md')
+                            try:
+                                if final_photos:
+                                    print(f"--- ОТПРАВЛЯЮ АЛЬБОМ ДЛЯ {ad_id} ---")
+                                    await client.send_file(int(channel_id), final_photos, caption=caption, parse_mode='md')
                                 else:
-                                    print(f"--- ФОТО НЕ НАЙДЕНЫ ДЛЯ {ad_id}, ОТПРАВЛЯЮ ТЕКСТ ---")
+                                    print(f"--- ФОТО НЕ НАЙДЕНЫ, ШЛЮ ТЕКСТ ДЛЯ {ad_id} ---")
                                     await client.send_message(int(channel_id), caption, parse_mode='md')
                                 
                                 ch['sent_to_tg'] = True
                                 changed = True
-                        
-                        if changed:
-                            with open(fname, 'w', encoding='utf-8') as f:
-                                json.dump(data, f, ensure_ascii=False, indent=2)
+                            except Exception as e:
+                                print(f"Ошибка отправки: {e}")
+
+                    if changed:
+                        with open(fname, 'w', encoding='utf-8') as f:
+                            json.dump(data, f, ensure_ascii=False, indent=2)
+                            
                 except Exception as e:
-                    print(f"Ошибка бота: {e}")
-                await asyncio.sleep(10)
+                    print(f"Ошибка монитора: {e}")
+                await asyncio.sleep(15) # Пауза между проверками
         
         loop.run_until_complete(monitor())
     except Exception as e:
@@ -3618,7 +3612,6 @@ def run_bot():
 
 if __name__ == '__main__':
     import threading
-    import os
     t = threading.Thread(target=run_bot, daemon=True)
     t.start()
     port = int(os.environ.get('PORT', 8080))
