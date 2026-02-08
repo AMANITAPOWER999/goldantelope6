@@ -3518,10 +3518,13 @@ def admin_delete_chat_message():
 
 
 
+
 def run_bot():
     try:
         import asyncio
+        import time
         from telethon import TelegramClient
+        
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         
@@ -3530,21 +3533,43 @@ def run_bot():
         bot_token = os.environ.get('telegram_bot_token')
         channel_id = os.environ.get('telegram_channel_id')
         
-        if not all([api_id, api_hash, bot_token]):
-            print("--- ОШИБКА: Проверь TELEGRAM_API_ID, HASH и TOKEN в Railway! ---")
-            return
-
-        print(f"--- БОТ НАСТРОЕН НА КАНАЛ: {channel_id} ---")
         bot_client = TelegramClient('bot_session', int(api_id), api_hash)
         
-        async def main():
+        async def check_and_send():
             await bot_client.start(bot_token=bot_token)
-            print("--- БОТ АВТОРИЗОВАН И ЗАПУЩЕН УСПЕШНО ---")
-            await bot_client.run_until_disconnected()
+            print("--- МОНИТОРИНГ ОДОБРЕННЫХ ПОСТОВ ЗАПУЩЕН ---")
+            
+            while True:
+                try:
+                    # Загружаем данные (предполагаем, что load_chat_data определена в app.py)
+                    # Если функция называется иначе, бот выдаст ошибку в логах
+                    data = load_chat_data() 
+                    
+                    for msg in data.get('messages', []):
+                        # Ищем те, что одобрены, но еще не отправлены в ТГ
+                        if msg.get('status') == 'approved' and not msg.get('sent_to_tg'):
+                            print(f"--- ОТПРАВКА ПОСТА {msg.get('id')} В КАНАЛ ---")
+                            
+                            text = msg.get('text', '')
+                            photo = msg.get('photo_path') # Проверь имя ключа в JSON
+                            
+                            if photo and os.path.exists(photo):
+                                await bot_client.send_file(int(channel_id), photo, caption=text)
+                            else:
+                                await bot_client.send_message(int(channel_id), text)
+                            
+                            # Помечаем как отправленное, чтобы не спамить
+                            msg['sent_to_tg'] = True
+                            save_chat_data(data)
+                            
+                except Exception as e:
+                    print(f"Ошибка внутри цикла мониторинга: {e}")
+                
+                await asyncio.sleep(10) # Проверка каждые 10 секунд
 
-        loop.run_until_complete(main())
+        loop.run_until_complete(check_and_send())
     except Exception as e:
-        print(f"--- ОШИБКА БОТА: {e} ---")
+        print(f"--- КРИТИЧЕСКАЯ ОШИБКА БОТА: {e} ---")
 
 if __name__ == '__main__':
     import threading
