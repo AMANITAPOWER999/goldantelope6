@@ -3516,15 +3516,28 @@ def admin_delete_chat_message():
 
 
 
+
 def run_bot():
     try:
         import asyncio
+        from telethon import TelegramClient
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        # Убедись, что переменная ниже совпадает с именем твоего TelegramClient
-        with client:
-            print("--- БОТ ПОДКЛЮЧЕН К TELEGRAM ---")
-            client.run_until_disconnected()
+        
+        # Берем данные из переменных окружения
+        api_id = os.environ.get('TELEGRAM_API_ID')
+        api_hash = os.environ.get('TELEGRAM_API_HASH')
+        session_name = 'gold_antelope' # или твое имя сессии
+        
+        if not api_id or not api_hash:
+            print("--- ОШИБКА: API_ID или API_HASH не найдены в переменных! ---")
+            return
+
+        bot_client = TelegramClient(session_name, int(api_id), api_hash)
+        
+        with bot_client:
+            print("--- БОТ ПОДКЛЮЧЕН К TELEGRAM УСПЕШНО ---")
+            bot_client.run_until_disconnected()
     except Exception as e:
         print(f"--- ОШИБКА БОТА: {e} ---")
 
