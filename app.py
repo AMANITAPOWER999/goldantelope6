@@ -3524,11 +3524,13 @@ def admin_delete_chat_message():
 
 
 
+
 def run_bot():
     try:
         import asyncio
         import json
         import os
+        import glob
         from telethon import TelegramClient
         
         loop = asyncio.new_event_loop()
@@ -3543,7 +3545,7 @@ def run_bot():
         
         async def monitor():
             await client.start(bot_token=bot_token)
-            print("--- ГЛОБАЛЬНЫЙ МОНИТОРИНГ ФОТО ЗАПУЩЕН ---")
+            print("--- БОТ ГОТОВ К ОТПРАВКЕ ФОТО ---")
             while True:
                 try:
                     fname = 'ads_channels_vietnam.json'
@@ -3553,27 +3555,35 @@ def run_bot():
                         
                         changed = False
                         for ch in data.get('channels', []):
+                            # Проверяем только новые (где нет sent_to_tg)
                             if ch.get('approved') == True and not ch.get('sent_to_tg'):
                                 ad_id = ch.get('id', '')
                                 clean_id = ad_id.replace('ad_', '')
                                 
-                                msg = f"🌟 **НОВОЕ ОБЪЯВЛЕНИЕ**\n\n📍 Город: {ch.get('city', 'N/A')}\n💰 Цена: {ch.get('price', '0')} USD\n👤 Канал: {ch.get('name', 'N/A')}\n📞 Контакт: {ch.get('contact', 'N/A')}"
+                                caption = (
+                                    f"🌟 **НОВОЕ ОБЪЯВЛЕНИЕ**\n\n"
+                                    f"📍 Город: {ch.get('city', 'N/A')}\n"
+                                    f"💰 Цена: {ch.get('price', '0')} USD\n"
+                                    f"👤 Канал: {ch.get('name', 'N/A')}\n"
+                                    f"📞 Контакт: {ch.get('contact', 'N/A')}"
+                                )
 
-                                # ГЛОБАЛЬНЫЙ ПОИСК ФАЙЛА ПО ВСЕМУ ПРОЕКТУ
+                                # Пытаемся найти фото на диске по ID
                                 photo_path = None
+                                # Ищем во всех подпапках static
                                 for root, dirs, files in os.walk("static"):
                                     for file in files:
-                                        if clean_id in file:
+                                        if clean_id in file and file.lower().endswith(('.png', '.jpg', '.jpeg')):
                                             photo_path = os.path.join(root, file)
                                             break
                                     if photo_path: break
 
-                                if photo_path and os.path.exists(photo_path):
-                                    print(f"--- УСПЕХ! НАШЕЛ ФАЙЛ: {photo_path} ---")
-                                    await client.send_file(int(channel_id), photo_path, caption=msg, parse_mode='md')
+                                if photo_path:
+                                    print(f"--- ОТПРАВЛЯЮ С ФОТО: {photo_path} ---")
+                                    await client.send_file(int(channel_id), photo_path, caption=caption, parse_mode='md')
                                 else:
-                                    print(f"--- ФАЙЛ С ID {clean_id} НЕ НАЙДЕН НИГДЕ В STATIC ---")
-                                    await client.send_message(int(channel_id), msg, parse_mode='md')
+                                    print(f"--- ФОТО НЕ НАЙДЕНО, ШЛЮ ТОЛЬКО ТЕКСТ ---")
+                                    await client.send_message(int(channel_id), caption, parse_mode='md')
                                 
                                 ch['sent_to_tg'] = True
                                 changed = True
@@ -3583,11 +3593,11 @@ def run_bot():
                                 json.dump(data, f, ensure_ascii=False, indent=2)
                 except Exception as e:
                     print(f"Ошибка: {e}")
-                await asyncio.sleep(15)
+                await asyncio.sleep(10)
         
         loop.run_until_complete(monitor())
     except Exception as e:
-        print(f"Критическая ошибка: {e}")
+        print(f"Ошибка запуска: {e}")
 
 if __name__ == '__main__':
     import threading
