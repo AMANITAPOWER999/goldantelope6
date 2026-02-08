@@ -3520,6 +3520,7 @@ def admin_delete_chat_message():
 
 
 
+
 def run_bot():
     try:
         import asyncio
@@ -3539,66 +3540,44 @@ def run_bot():
         
         async def monitor():
             await bot_client.start(bot_token=bot_token)
-            print("--- МОНИТОРИНГ ads_channels_vietnam.json ЗАПУЩЕН ---")
+            print("--- МОНИТОРИНГ ЗАПУЩЕН (БЕЗ ОШИБОК СИНТАКСИСА) ---")
             
             while True:
                 try:
-                    # Путь к файлу с данными Вьетнама
                     fname = 'ads_channels_vietnam.json'
                     if os.path.exists(fname):
                         with open(fname, 'r', encoding='utf-8') as f:
                             data = json.load(f)
                         
                         changed = False
-                        # В твоем JSON данные лежат в ключе 'channels'
                         channels = data.get('channels', [])
                         
                         for ch in channels:
-                            # Проверяем: одобрено ли и НЕ отправлено ли ранее
                             if ch.get('approved') == True and not ch.get('sent_to_tg'):
-                                print(f"--- ОТПРАВЛЯЮ В КАНАЛ: {ch.get('name')} ---")
+                                print(f"--- ПУБЛИКАЦИЯ: {ch.get('name')} ---")
                                 
-                                # Собираем текст
-                                name = ch.get('name', 'Без названия')
-                                city = ch.get('city', 'Не указан')
-                                price = ch.get('price', '0')
-                                cat = ch.get('category', 'general')
-                                contact = ch.get('contact', 'Не указан')
+                                # Используем конкатенацию строк для безопасности
+                                msg = "🌟 **НОВОЕ ОБЪЯВЛЕНИЕ**\n\n"
+                                msg += f"📍 **Город:** {ch.get('city', 'Не указан')}\n"
+                                msg += f"📂 **Категория:** #{ch.get('category', 'general')}\n"
+                                msg += f"💰 **Цена:** {ch.get('price', '0')} USD\n"
+                                msg += f"👤 **Аккаунт:** {ch.get('name', 'Без названия')}\n"
+                                msg += f"📞 **Контакт:** {ch.get('contact', 'Не указан')}\n\n"
+                                msg += "✅ _Проверено модератором_"
                                 
-                                message = (
-                                    f"🌟 **НОВОЕ ОБЪЯВЛЕНИЕ**
-
-"
-                                    f"📍 **Город:** {city}
-"
-                                    f"📂 **Категория:** #{cat}
-"
-                                    f"💰 **Цена:** {price} USD
-"
-                                    f"👤 **Аккаунт:** {name}
-"
-                                    f"📞 **Контакт:** {contact}
-
-"
-                                    f"✅ _Проверено модератором_"
-                                )
+                                await bot_client.send_message(int(channel_id), msg, parse_mode='md')
                                 
-                                # Отправляем сообщение
-                                await bot_client.send_message(int(channel_id), message, parse_mode='md')
-                                
-                                # Ставим метку, чтобы не отправлять повторно
                                 ch['sent_to_tg'] = True
                                 changed = True
                         
                         if changed:
-                            # Сохраняем файл с метками об отправке
                             with open(fname, 'w', encoding='utf-8') as f:
                                 json.dump(data, f, ensure_ascii=False, indent=2)
                                 
                 except Exception as e:
-                    print(f"Ошибка в цикле бота: {e}")
+                    print(f"Ошибка цикла: {e}")
                 
-                await asyncio.sleep(10) # Проверка каждые 10 секунд
+                await asyncio.sleep(10)
 
         loop.run_until_complete(monitor())
     except Exception as e:
