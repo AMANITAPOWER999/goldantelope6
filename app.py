@@ -3523,12 +3523,12 @@ def admin_delete_chat_message():
 
 
 
+
 def run_bot():
     try:
         import asyncio
         import json
         import os
-        import glob
         from telethon import TelegramClient
         
         loop = asyncio.new_event_loop()
@@ -3543,7 +3543,7 @@ def run_bot():
         
         async def monitor():
             await client.start(bot_token=bot_token)
-            print("--- МОНИТОРИНГ НОВЫХ ОБЪЯВЛЕНИЙ ЗАПУЩЕН ---")
+            print("--- ГЛОБАЛЬНЫЙ МОНИТОРИНГ ФОТО ЗАПУЩЕН ---")
             while True:
                 try:
                     fname = 'ads_channels_vietnam.json'
@@ -3553,37 +3553,28 @@ def run_bot():
                         
                         changed = False
                         for ch in data.get('channels', []):
-                            # Условие: одобрено и ЕЩЕ НЕ ОТПРАВЛЯЛОСЬ (метка sent_to_tg)
                             if ch.get('approved') == True and not ch.get('sent_to_tg'):
                                 ad_id = ch.get('id', '')
                                 clean_id = ad_id.replace('ad_', '')
                                 
-                                # Текст объявления
                                 msg = f"🌟 **НОВОЕ ОБЪЯВЛЕНИЕ**\n\n📍 Город: {ch.get('city', 'N/A')}\n💰 Цена: {ch.get('price', '0')} USD\n👤 Канал: {ch.get('name', 'N/A')}\n📞 Контакт: {ch.get('contact', 'N/A')}"
 
-                                # Ищем только новое фото в папке banners
-                                # Мы видели в логах, что они сохраняются туда с префиксом vietnam_
+                                # ГЛОБАЛЬНЫЙ ПОИСК ФАЙЛА ПО ВСЕМУ ПРОЕКТУ
                                 photo_path = None
-                                patterns = [
-                                    f"static/images/banners/*{clean_id}*",
-                                    f"static/images/*{clean_id}*"
-                                ]
-                                
-                                for p in patterns:
-                                    matches = glob.glob(p)
-                                    if matches:
-                                        # Берем самый свежий файл, если их несколько
-                                        photo_path = max(matches, key=os.path.getmtime)
-                                        break
+                                for root, dirs, files in os.walk("static"):
+                                    for file in files:
+                                        if clean_id in file:
+                                            photo_path = os.path.join(root, file)
+                                            break
+                                    if photo_path: break
 
                                 if photo_path and os.path.exists(photo_path):
-                                    print(f"--- ПУБЛИКАЦИЯ С ФОТО: {photo_path} ---")
+                                    print(f"--- УСПЕХ! НАШЕЛ ФАЙЛ: {photo_path} ---")
                                     await client.send_file(int(channel_id), photo_path, caption=msg, parse_mode='md')
                                 else:
-                                    print(f"--- ФОТО НЕ НАЙДЕНО ДЛЯ {clean_id}, ТОЛЬКО ТЕКСТ ---")
+                                    print(f"--- ФАЙЛ С ID {clean_id} НЕ НАЙДЕН НИГДЕ В STATIC ---")
                                     await client.send_message(int(channel_id), msg, parse_mode='md')
                                 
-                                # Ставим метку, чтобы больше этот пост не трогать
                                 ch['sent_to_tg'] = True
                                 changed = True
                         
@@ -3591,12 +3582,12 @@ def run_bot():
                             with open(fname, 'w', encoding='utf-8') as f:
                                 json.dump(data, f, ensure_ascii=False, indent=2)
                 except Exception as e:
-                    print(f"Ошибка в мониторе: {e}")
-                await asyncio.sleep(10)
+                    print(f"Ошибка: {e}")
+                await asyncio.sleep(15)
         
         loop.run_until_complete(monitor())
     except Exception as e:
-        print(f"Ошибка бота: {e}")
+        print(f"Критическая ошибка: {e}")
 
 if __name__ == '__main__':
     import threading
