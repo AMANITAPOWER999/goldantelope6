@@ -3523,14 +3523,26 @@ def run_bot():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     # Запускаем основной цикл бота (предполагаем, что client определен глобально)
-    with client:
-        client.run_until_disconnected()
+
+def run_bot():
+    try:
+        import asyncio
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        # ВАЖНО: убедись, что переменная называется client
+        with client:
+            print("Бот Telethon запущен...")
+            client.run_until_disconnected()
+    except Exception as e:
+        print(f"Ошибка в потоке бота: {e}")
 
 if __name__ == '__main__':
-    # Запускаем бота в фоне
+    import threading
+    # Запуск бота в фоне
     bot_thread = threading.Thread(target=run_bot, daemon=True)
     bot_thread.start()
     
-    # Запускаем Flask на порту, который дает Railway
-    port = int(os.environ.get('PORT', 5000))
+    # Запуск веб-сервера на порту Railway
+    port = int(os.environ.get('PORT', 8080))
+    print(f"Запуск Flask на порту {port}...")
     app.run(host='0.0.0.0', port=port, debug=False)
