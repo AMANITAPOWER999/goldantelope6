@@ -3517,6 +3517,7 @@ def admin_delete_chat_message():
 
 
 
+
 def run_bot():
     try:
         import asyncio
@@ -3524,20 +3525,24 @@ def run_bot():
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         
-        # Берем данные из переменных окружения
         api_id = os.environ.get('TELEGRAM_API_ID')
         api_hash = os.environ.get('TELEGRAM_API_HASH')
-        session_name = 'gold_antelope' # или твое имя сессии
+        bot_token = os.environ.get('telegram_bot_token')
+        channel_id = os.environ.get('telegram_channel_id')
         
-        if not api_id or not api_hash:
-            print("--- ОШИБКА: API_ID или API_HASH не найдены в переменных! ---")
+        if not all([api_id, api_hash, bot_token]):
+            print("--- ОШИБКА: Проверь TELEGRAM_API_ID, HASH и TOKEN в Railway! ---")
             return
 
-        bot_client = TelegramClient(session_name, int(api_id), api_hash)
+        print(f"--- БОТ НАСТРОЕН НА КАНАЛ: {channel_id} ---")
+        bot_client = TelegramClient('bot_session', int(api_id), api_hash)
         
-        with bot_client:
-            print("--- БОТ ПОДКЛЮЧЕН К TELEGRAM УСПЕШНО ---")
-            bot_client.run_until_disconnected()
+        async def main():
+            await bot_client.start(bot_token=bot_token)
+            print("--- БОТ АВТОРИЗОВАН И ЗАПУЩЕН УСПЕШНО ---")
+            await bot_client.run_until_disconnected()
+
+        loop.run_until_complete(main())
     except Exception as e:
         print(f"--- ОШИБКА БОТА: {e} ---")
 
@@ -3545,10 +3550,8 @@ if __name__ == '__main__':
     import threading
     import os
     
-    print("--- ЗАПУСК ПОТОКА БОТА ---")
     bot_thread = threading.Thread(target=run_bot, daemon=True)
     bot_thread.start()
     
     port = int(os.environ.get('PORT', 8080))
-    print(f"--- ЗАПУСК FLASK НА ПОРТУ {port} ---")
     app.run(host='0.0.0.0', port=port, debug=False)
