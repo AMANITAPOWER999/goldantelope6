@@ -3521,6 +3521,7 @@ def admin_delete_chat_message():
 
 
 
+
 def run_bot():
     try:
         import asyncio
@@ -3536,12 +3537,11 @@ def run_bot():
         bot_token = os.environ.get('telegram_bot_token')
         channel_id = os.environ.get('telegram_channel_id')
         
-        bot_client = TelegramClient('bot_session', int(api_id), api_hash)
+        client = TelegramClient('bot_session', int(api_id), api_hash)
         
         async def monitor():
-            await bot_client.start(bot_token=bot_token)
-            print("--- МОНИТОРИНГ ЗАПУЩЕН (БЕЗ ОШИБОК СИНТАКСИСА) ---")
-            
+            await client.start(bot_token=bot_token)
+            print("--- БОТ ЗАПУЩЕН И МОНИТОРИТ JSON ---")
             while True:
                 try:
                     fname = 'ads_channels_vietnam.json'
@@ -3550,45 +3550,39 @@ def run_bot():
                             data = json.load(f)
                         
                         changed = False
-                        channels = data.get('channels', [])
-                        
-                        for ch in channels:
+                        for ch in data.get('channels', []):
                             if ch.get('approved') == True and not ch.get('sent_to_tg'):
-                                print(f"--- ПУБЛИКАЦИЯ: {ch.get('name')} ---")
+                                # Собираем текст по кусочкам для безопасности синтаксиса
+                                name = ch.get('name', 'N/A')
+                                city = ch.get('city', 'N/A')
+                                price = ch.get('price', '0')
+                                contact = ch.get('contact', 'N/A')
                                 
-                                # Используем конкатенацию строк для безопасности
                                 msg = "🌟 **НОВОЕ ОБЪЯВЛЕНИЕ**\n\n"
-                                msg += f"📍 **Город:** {ch.get('city', 'Не указан')}\n"
-                                msg += f"📂 **Категория:** #{ch.get('category', 'general')}\n"
-                                msg += f"💰 **Цена:** {ch.get('price', '0')} USD\n"
-                                msg += f"👤 **Аккаунт:** {ch.get('name', 'Без названия')}\n"
-                                msg += f"📞 **Контакт:** {ch.get('contact', 'Не указан')}\n\n"
-                                msg += "✅ _Проверено модератором_"
+                                msg += f"📍 Город: {city}\n"
+                                msg += f"💰 Цена: {price} USD\n"
+                                msg += f"👤 Канал: {name}\n"
+                                msg += f"📞 Контакт: {contact}"
                                 
-                                await bot_client.send_message(int(channel_id), msg, parse_mode='md')
-                                
+                                await client.send_message(int(channel_id), msg, parse_mode='md')
                                 ch['sent_to_tg'] = True
                                 changed = True
                         
                         if changed:
                             with open(fname, 'w', encoding='utf-8') as f:
                                 json.dump(data, f, ensure_ascii=False, indent=2)
-                                
                 except Exception as e:
-                    print(f"Ошибка цикла: {e}")
-                
-                await asyncio.sleep(10)
-
+                    print(f"Ошибка: {e}")
+                await asyncio.sleep(15)
+        
         loop.run_until_complete(monitor())
     except Exception as e:
-        print(f"--- КРИТИЧЕСКАЯ ОШИБКА БОТА: {e} ---")
+        print(f"Критическая ошибка: {e}")
 
 if __name__ == '__main__':
     import threading
     import os
-    
-    bot_thread = threading.Thread(target=run_bot, daemon=True)
-    bot_thread.start()
-    
+    t = threading.Thread(target=run_bot, daemon=True)
+    t.start()
     port = int(os.environ.get('PORT', 8080))
     app.run(host='0.0.0.0', port=port, debug=False)
