@@ -3518,31 +3518,27 @@ def admin_delete_chat_message():
 if __name__ == '__main__':
 
 def run_bot():
-    import asyncio
-    # Создаем новый цикл событий для отдельного потока
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    # Запускаем основной цикл бота (предполагаем, что client определен глобально)
-
-def run_bot():
     try:
         import asyncio
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        # ВАЖНО: убедись, что переменная называется client
+        # Если переменная клиента называется иначе, замени 'client' ниже
         with client:
-            print("Бот Telethon запущен...")
+            print("--- БОТ TELETHON ЗАПУЩЕН ---")
             client.run_until_disconnected()
     except Exception as e:
-        print(f"Ошибка в потоке бота: {e}")
+        print(f"--- ОШИБКА БОТА: {e} ---")
 
 if __name__ == '__main__':
     import threading
-    # Запуск бота в фоне
+    import os
+    
+    # 1. Запуск бота в отдельном потоке
+    print("--- ЗАПУСК ФОНОВОГО ПОТОКА БОТА ---")
     bot_thread = threading.Thread(target=run_bot, daemon=True)
     bot_thread.start()
     
-    # Запуск веб-сервера на порту Railway
+    # 2. Запуск Flask на порту Railway
     port = int(os.environ.get('PORT', 8080))
-    print(f"Запуск Flask на порту {port}...")
+    print(f"--- ЗАПУСК FLASK НА ПОРТУ {port} ---")
     app.run(host='0.0.0.0', port=port, debug=False)
