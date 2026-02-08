@@ -3519,10 +3519,12 @@ def admin_delete_chat_message():
 
 
 
+
 def run_bot():
     try:
         import asyncio
-        import time
+        import json
+        import os
         from telethon import TelegramClient
         
         loop = asyncio.new_event_loop()
@@ -3535,39 +3537,70 @@ def run_bot():
         
         bot_client = TelegramClient('bot_session', int(api_id), api_hash)
         
-        async def check_and_send():
+        async def monitor():
             await bot_client.start(bot_token=bot_token)
-            print("--- МОНИТОРИНГ ОДОБРЕННЫХ ПОСТОВ ЗАПУЩЕН ---")
+            print("--- МОНИТОРИНГ ads_channels_vietnam.json ЗАПУЩЕН ---")
             
             while True:
                 try:
-                    # Загружаем данные (предполагаем, что load_chat_data определена в app.py)
-                    # Если функция называется иначе, бот выдаст ошибку в логах
-                    data = load_chat_data() 
-                    
-                    for msg in data.get('messages', []):
-                        # Ищем те, что одобрены, но еще не отправлены в ТГ
-                        if msg.get('status') == 'approved' and not msg.get('sent_to_tg'):
-                            print(f"--- ОТПРАВКА ПОСТА {msg.get('id')} В КАНАЛ ---")
-                            
-                            text = msg.get('text', '')
-                            photo = msg.get('photo_path') # Проверь имя ключа в JSON
-                            
-                            if photo and os.path.exists(photo):
-                                await bot_client.send_file(int(channel_id), photo, caption=text)
-                            else:
-                                await bot_client.send_message(int(channel_id), text)
-                            
-                            # Помечаем как отправленное, чтобы не спамить
-                            msg['sent_to_tg'] = True
-                            save_chat_data(data)
-                            
+                    # Путь к файлу с данными Вьетнама
+                    fname = 'ads_channels_vietnam.json'
+                    if os.path.exists(fname):
+                        with open(fname, 'r', encoding='utf-8') as f:
+                            data = json.load(f)
+                        
+                        changed = False
+                        # В твоем JSON данные лежат в ключе 'channels'
+                        channels = data.get('channels', [])
+                        
+                        for ch in channels:
+                            # Проверяем: одобрено ли и НЕ отправлено ли ранее
+                            if ch.get('approved') == True and not ch.get('sent_to_tg'):
+                                print(f"--- ОТПРАВЛЯЮ В КАНАЛ: {ch.get('name')} ---")
+                                
+                                # Собираем текст
+                                name = ch.get('name', 'Без названия')
+                                city = ch.get('city', 'Не указан')
+                                price = ch.get('price', '0')
+                                cat = ch.get('category', 'general')
+                                contact = ch.get('contact', 'Не указан')
+                                
+                                message = (
+                                    f"🌟 **НОВОЕ ОБЪЯВЛЕНИЕ**
+
+"
+                                    f"📍 **Город:** {city}
+"
+                                    f"📂 **Категория:** #{cat}
+"
+                                    f"💰 **Цена:** {price} USD
+"
+                                    f"👤 **Аккаунт:** {name}
+"
+                                    f"📞 **Контакт:** {contact}
+
+"
+                                    f"✅ _Проверено модератором_"
+                                )
+                                
+                                # Отправляем сообщение
+                                await bot_client.send_message(int(channel_id), message, parse_mode='md')
+                                
+                                # Ставим метку, чтобы не отправлять повторно
+                                ch['sent_to_tg'] = True
+                                changed = True
+                        
+                        if changed:
+                            # Сохраняем файл с метками об отправке
+                            with open(fname, 'w', encoding='utf-8') as f:
+                                json.dump(data, f, ensure_ascii=False, indent=2)
+                                
                 except Exception as e:
-                    print(f"Ошибка внутри цикла мониторинга: {e}")
+                    print(f"Ошибка в цикле бота: {e}")
                 
                 await asyncio.sleep(10) # Проверка каждые 10 секунд
 
-        loop.run_until_complete(check_and_send())
+        loop.run_until_complete(monitor())
     except Exception as e:
         print(f"--- КРИТИЧЕСКАЯ ОШИБКА БОТА: {e} ---")
 
