@@ -3527,6 +3527,7 @@ def admin_delete_chat_message():
 
 
 
+
 def run_bot():
     try:
         import asyncio
@@ -3537,7 +3538,6 @@ def run_bot():
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         
-        # Берем переменные окружения Railway
         api_id = os.environ.get('TELEGRAM_API_ID')
         api_hash = os.environ.get('TELEGRAM_API_HASH')
         bot_token = os.environ.get('telegram_bot_token')
@@ -3547,68 +3547,58 @@ def run_bot():
         
         async def monitor():
             await client.start(bot_token=bot_token)
-            print("--- МОНИТОРИНГ ЗАПУЩЕН (4 ФОТО + ПОЛНОЕ ОПИСАНИЕ) ---")
-            
+            print("--- БОТ ЗАПУЩЕН: ПОИСК ФОТО + ПОЛНЫЙ ПОСТ ---")
             while True:
                 try:
                     fname = 'ads_channels_vietnam.json'
-                    if not os.path.exists(fname):
-                        await asyncio.sleep(10); continue
+                    if os.path.exists(fname):
+                        with open(fname, 'r', encoding='utf-8') as f:
+                            data = json.load(f)
                         
-                    with open(fname, 'r', encoding='utf-8') as f:
-                        data = json.load(f)
-                    
-                    changed = False
-                    for ch in data.get('channels', []):
-                        # Условие: одобрено и еще не отправлено (нет метки sent_to_tg)
-                        if ch.get('approved') == True and not ch.get('sent_to_tg'):
-                            ad_id = ch.get('id', '').replace('ad_', '')
-                            
-                            # Собираем ПОЛНОЕ описание
-                            caption = (
-                                f"🌟 **НОВОЕ ОБЪЯВЛЕНИЕ**\n\n"
-                                f"📝 **Название:** {ch.get('name', 'N/A')}\n"
-                                f"📂 **Категория:** #{ch.get('category', 'vietnam').replace(' ', '_')}\n"
-                                f"📍 **Город:** {ch.get('city', 'Не указан')}\n"
-                                f"💰 **Цена:** {ch.get('price', '0')} USD\n"
-                                f"📞 **Контакт:** {ch.get('contact', 'N/A')}\n"
-                                f"👥 **Охват:** {ch.get('members', '0')} подп."
-                            )
+                        changed = False
+                        for ch in data.get('channels', []):
+                            # Если одобрено и флаг отправки не стоит
+                            if ch.get('approved') == True and ch.get('sent_to_tg') != True:
+                                ad_id = ch.get('id', '').replace('ad_', '')
+                                
+                                caption = (
+                                    f"🔥 **НОВОЕ ОБЪЯВЛЕНИЕ**\n\n"
+                                    f"📝 **Название:** {ch.get('name', 'N/A')}\n"
+                                    f"📁 **Категория:** #{ch.get('category', 'vietnam').replace(' ', '_')}\n"
+                                    f"📍 **Город:** {ch.get('city', 'Вьетнам')}\n"
+                                    f"💰 **Цена:** {ch.get('price', '—')} USD\n"
+                                    f"📞 **Контакт:** {ch.get('contact', 'N/A')}"
+                                )
 
-                            # ТОТАЛЬНЫЙ ПОИСК ФОТО (ищем везде в static)
-                            photo_paths = []
-                            for root, dirs, files in os.walk("static"):
-                                for file in files:
-                                    if ad_id in file and file.lower().endswith(('.png', '.jpg', '.jpeg')):
-                                        photo_paths.append(os.path.join(root, file))
-                            
-                            # Берем первые 4 фото
-                            final_photos = sorted(list(set(photo_paths)))[:4]
+                                # Ищем все фото в папке static по ID
+                                photo_paths = []
+                                for root, dirs, files in os.walk("static"):
+                                    for file in files:
+                                        if ad_id in file and file.lower().endswith(('.png', '.jpg', '.jpeg')):
+                                            photo_paths.append(os.path.join(root, file))
+                                
+                                photo_paths = list(dict.fromkeys(photo_paths))[:4]
 
-                            try:
-                                if final_photos:
-                                    print(f"--- ОТПРАВЛЯЮ АЛЬБОМ ДЛЯ {ad_id} ---")
-                                    await client.send_file(int(channel_id), final_photos, caption=caption, parse_mode='md')
+                                if photo_paths:
+                                    print(f"--- ОТПРАВКА АЛЬБОМА ДЛЯ {ad_id} ---")
+                                    await client.send_file(int(channel_id), photo_paths, caption=caption, parse_mode='md')
                                 else:
-                                    print(f"--- ФОТО НЕ НАЙДЕНЫ, ШЛЮ ТЕКСТ ДЛЯ {ad_id} ---")
+                                    print(f"--- ФОТО НЕ НАЙДЕНЫ ДЛЯ {ad_id}, ШЛЮ ТЕКСТ ---")
                                     await client.send_message(int(channel_id), caption, parse_mode='md')
                                 
                                 ch['sent_to_tg'] = True
                                 changed = True
-                            except Exception as e:
-                                print(f"Ошибка отправки: {e}")
 
-                    if changed:
-                        with open(fname, 'w', encoding='utf-8') as f:
-                            json.dump(data, f, ensure_ascii=False, indent=2)
-                            
+                        if changed:
+                            with open(fname, 'w', encoding='utf-8') as f:
+                                json.dump(data, f, ensure_ascii=False, indent=2)
                 except Exception as e:
-                    print(f"Ошибка монитора: {e}")
-                await asyncio.sleep(15) # Пауза между проверками
+                    print(f"Ошибка цикла: {e}")
+                await asyncio.sleep(15)
         
         loop.run_until_complete(monitor())
     except Exception as e:
-        print(f"Критическая ошибка: {e}")
+        print(f"Ошибка авторизации: {e}")
 
 if __name__ == '__main__':
     import threading
