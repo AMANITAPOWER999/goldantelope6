@@ -3515,16 +3515,15 @@ def admin_delete_chat_message():
     return jsonify({'success': True, 'message': 'Сообщение удалено'})
 
 
-if __name__ == '__main__':
 
 def run_bot():
     try:
         import asyncio
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        # Если переменная клиента называется иначе, замени 'client' ниже
+        # Убедись, что переменная ниже совпадает с именем твоего TelegramClient
         with client:
-            print("--- БОТ TELETHON ЗАПУЩЕН ---")
+            print("--- БОТ ПОДКЛЮЧЕН К TELEGRAM ---")
             client.run_until_disconnected()
     except Exception as e:
         print(f"--- ОШИБКА БОТА: {e} ---")
@@ -3533,12 +3532,10 @@ if __name__ == '__main__':
     import threading
     import os
     
-    # 1. Запуск бота в отдельном потоке
-    print("--- ЗАПУСК ФОНОВОГО ПОТОКА БОТА ---")
+    print("--- ЗАПУСК ПОТОКА БОТА ---")
     bot_thread = threading.Thread(target=run_bot, daemon=True)
     bot_thread.start()
     
-    # 2. Запуск Flask на порту Railway
     port = int(os.environ.get('PORT', 8080))
     print(f"--- ЗАПУСК FLASK НА ПОРТУ {port} ---")
     app.run(host='0.0.0.0', port=port, debug=False)
