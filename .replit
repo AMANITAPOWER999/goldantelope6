@@ -27,7 +27,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python -m gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
+args = "python -m gunicorn --bind 0.0.0.0:5000 --reuse-port --reload --timeout 120 main:app"
 waitForPort = 5000
 
 [[ports]]
@@ -43,3 +43,6 @@ run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
 [userenv.shared]
 ADMIN_KEY = "29Sept1982!"
 TELEGRAM_BOT_TOKEN = "8058224567:AAFgF-p5mUjO_7dYTB5C-zHovIxZKqHRdK4"
+TELETHON_API_ID = "32881984"
+TELETHON_API_HASH = "d2588f09dfbc5103ef77ef21c07dbf8b"
+VIETNAMPARSING_BOT_TOKEN = "8767069054:AAGNAhw-ZBXZf8ppytp0MKK25B9VsdOKG14"

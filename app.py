@@ -3600,6 +3600,57 @@ def run_bot():
     except Exception as e:
         print(f"Ошибка авторизации: {e}")
 
+# ============ VIETNAMPARSING PARSER INTEGRATION ============
+
+@app.route('/api/admin/vietnamparsing-status', methods=['GET'])
+def vietnamparsing_status():
+    try:
+        from vietnamparsing_parser import get_parser_state
+        state = get_parser_state()
+        return jsonify({'success': True, 'state': state})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/admin/vietnamparsing-refresh', methods=['POST'])
+def vietnamparsing_refresh():
+    password = request.json.get('password', '') if request.is_json else request.form.get('password', '')
+    is_valid, _ = check_admin_password(password, 'vietnam')
+    if not is_valid:
+        return jsonify({'error': 'Unauthorized'}), 401
+    try:
+        from vietnamparsing_parser import fetch_initial_200
+        t = threading.Thread(target=fetch_initial_200, daemon=True)
+        t.start()
+        return jsonify({'success': True, 'message': 'Refresh started in background'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+def _start_vietnamparsing_parser():
+    try:
+        from vietnamparsing_parser import start_parser_in_background
+        start_parser_in_background()
+        print("[vietnamparsing] Parser background thread started.")
+    except Exception as e:
+        print(f"[vietnamparsing] Could not start parser: {e}")
+
+
+_vp_started = False
+
+def _ensure_parser_started():
+    global _vp_started
+    if not _vp_started:
+        _vp_started = True
+        def _delayed_start():
+            time.sleep(8)
+            _start_vietnamparsing_parser()
+        threading.Thread(target=_delayed_start, daemon=True, name='VPParserLauncher').start()
+
+
+_ensure_parser_started()
+
+
 if __name__ == '__main__':
     import threading
     t = threading.Thread(target=run_bot, daemon=True)
