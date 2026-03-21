@@ -73,6 +73,8 @@ SPAM_KEYWORDS = [
     'casino', 'forex', 'crypto trading', 'заработок онлайн', 'пассивный доход',
     'бинарные опционы', 'click here', 'sign up now', 'register now',
     'advertising', 'binary options', 'invest', 'инвестиции в крипт',
+    'обмен валют', 'обменник', 'курс обмена', 'лучший курс', 'exchange rate',
+    'currency exchange', 'money exchange', 'обменяю валют',
 ]
 
 SKIP_LINE_PREFIXES_TH = re.compile(
@@ -216,24 +218,54 @@ def extract_title_th(text: str) -> str:
     for line in lines:
         if SKIP_LINE_PREFIXES_TH.match(line):
             continue
+        # Skip lines that are just a URL
+        if re.match(r'^https?://\S+$', line):
+            continue
         clean = re.sub(r'[#*_]', '', line).strip()
         if len(clean) > 5:
             return clean[:120]
+    # Fallback: strip link/source/price lines, use remaining text
     fallback = re.sub(
-        r'(?:источник|source|описание|цена|адрес|город|available)[:\s]*\S+\s*\n?',
+        r'(?:источник|source|описание|цена|адрес|город|available|ссылка|link)[:\s]*\S+\s*\n?',
         '', text, flags=re.IGNORECASE
     ).strip()
-    return (fallback[:100] if fallback else text[:100])
+    fallback = re.sub(r'https?://\S+', '', fallback).strip()
+    return (fallback[:100] if len(fallback) > 5 else 'Объявление о недвижимости')
 
 
-def extract_images_from_update(update: dict) -> list:
+def _scrape_cdn_photos(channel: str, post_id: int) -> list:
+    """Scrape permanent CDN photo URLs from the public Telegram viewer."""
+    if not post_id:
+        return []
+    try:
+        import requests as req
+        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'}
+        r = req.get(f'https://t.me/s/{channel}?before={post_id + 1}', headers=headers, timeout=10)
+        if r.status_code != 200:
+            return []
+        html_text = r.text
+        pattern = rf'data-post="{channel}/{post_id}"(.*?)(?=data-post="{channel}/\d+"|\Z)'
+        block_m = re.search(pattern, html_text, re.DOTALL | re.IGNORECASE)
+        block = block_m.group(0) if block_m else html_text
+        imgs = re.findall(r"background-image:url\('(https://cdn[^']+)'\)", block)
+        return list(dict.fromkeys(imgs))
+    except Exception:
+        return []
+
+
+def extract_images_from_update(update: dict, post_id: int = 0) -> list:
     post = update.get('message') or update.get('channel_post') or {}
+    # First try CDN scraping for permanent URLs
+    if post_id:
+        cdn = _scrape_cdn_photos(SOURCE_CHANNEL, post_id)
+        if cdn:
+            return cdn
+    # Fallback: Bot API URL (expires, but better than nothing)
     photos = []
-    if post.get('photo'):
-        # Take largest version
+    if post.get('photo') and BOT_TOKEN:
         best = max(post['photo'], key=lambda p: p.get('file_size', 0))
         file_id = best.get('file_id', '')
-        if file_id and BOT_TOKEN:
+        if file_id:
             try:
                 import requests as req
                 r = req.get(
@@ -243,8 +275,7 @@ def extract_images_from_update(update: dict) -> list:
                 if r.ok:
                     path = r.json().get('result', {}).get('file_path', '')
                     if path:
-                        url = f'https://api.telegram.org/file/bot{BOT_TOKEN}/{path}'
-                        photos.append(url)
+                        photos.append(f'https://api.telegram.org/file/bot{BOT_TOKEN}/{path}')
             except Exception:
                 pass
     return photos
@@ -300,7 +331,11 @@ def process_thailand_update(update: dict) -> dict | None:
     listing_type = detect_listing_type(text)
     title = extract_title_th(text)
     source = extract_source(text)
-    photos = extract_images_from_update(update)
+    photos = extract_images_from_update(update, post_id=msg_id)
+
+    # Telegram link: check text for explicit link, otherwise build from msg_id
+    tg_link_m = re.search(r'https?://t\.me/\S+', text)
+    telegram_link = tg_link_m.group(0) if tg_link_m else (f'https://t.me/{SOURCE_CHANNEL}/{msg_id}' if msg_id else '')
 
     date_ts = post.get('date', 0)
     date_str = datetime.fromtimestamp(date_ts, tz=timezone.utc).isoformat() if date_ts else datetime.now(timezone.utc).isoformat()
@@ -315,6 +350,7 @@ def process_thailand_update(update: dict) -> dict | None:
         'city': city,
         'listing_type': listing_type,
         'contact': source,
+        'telegram_link': telegram_link,
         'photos': photos,
         'image_url': photos[0] if photos else '',
         'all_images': photos,
