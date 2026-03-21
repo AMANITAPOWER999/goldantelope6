@@ -542,7 +542,38 @@ def poll_bot_for_updates(last_update_id: int = 0) -> tuple[list, int]:
         return [], last_update_id
 
 
-def process_bot_update(update: dict) -> dict | None:
+def _resolve_file_url(file_id: str) -> str:
+    """Resolve a Telegram file_id to a direct download URL."""
+    if not file_id or not BOT_TOKEN:
+        return ''
+    try:
+        resp = requests.get(
+            f"https://api.telegram.org/bot{BOT_TOKEN}/getFile",
+            params={'file_id': file_id}, timeout=10
+        )
+        file_path = resp.json().get('result', {}).get('file_path', '')
+        if file_path:
+            return f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}"
+    except Exception:
+        pass
+    return ''
+
+
+def _extract_largest_photo_url(post: dict) -> str:
+    """Get the URL of the largest photo variant from a Telegram post."""
+    photo_list = post.get('photo', [])
+    if not photo_list:
+        return ''
+    largest = max(photo_list, key=lambda p: p.get('file_size', 0))
+    return _resolve_file_url(largest.get('file_id', ''))
+
+
+def process_bot_update(update: dict, override_photos: list | None = None) -> dict | None:
+    """Process a single Bot API update into a listing item.
+
+    override_photos: if provided, use these URLs instead of extracting from post.
+                     Used when media-group photos are pre-collected by the caller.
+    """
     post = update.get('channel_post') or update.get('message')
     if not post:
         return None
@@ -557,23 +588,11 @@ def process_bot_update(update: dict) -> dict | None:
     date_ts = post.get('date', 0)
     date_str = datetime.fromtimestamp(date_ts, tz=timezone.utc).isoformat() if date_ts else datetime.now(timezone.utc).isoformat()
 
-    photos = []
-    if post.get('photo'):
-        photo_list = post['photo']
-        largest = max(photo_list, key=lambda p: p.get('file_size', 0))
-        file_id = largest.get('file_id', '')
-        if file_id and BOT_TOKEN:
-            try:
-                file_url_resp = requests.get(
-                    f"https://api.telegram.org/bot{BOT_TOKEN}/getFile",
-                    params={'file_id': file_id}, timeout=10
-                )
-                file_info = file_url_resp.json().get('result', {})
-                file_path = file_info.get('file_path', '')
-                if file_path:
-                    photos.append(f"https://api.telegram.org/file/bot{BOT_TOKEN}/{file_path}")
-            except:
-                pass
+    if override_photos is not None:
+        photos = override_photos
+    else:
+        url = _extract_largest_photo_url(post)
+        photos = [url] if url else []
 
     fwd = post.get('forward_from_chat', {})
     fwd_name = ''
@@ -622,6 +641,65 @@ def run_initial_fetch():
     logger.info("Switched to monitoring mode.")
 
 
+def _group_media_updates(updates: list) -> tuple[list, list]:
+    """Split updates into (vietnam_singles, vietnam_media_groups, thailand_updates).
+
+    Returns (vietnam_items_to_process, thailand_updates) where
+    vietnam_items_to_process is a list of (update, override_photos) tuples.
+    Media-group messages are merged: all their photos combined, keyed by
+    the first message_id in the group.
+    """
+    from collections import defaultdict, OrderedDict
+
+    thailand_updates = []
+    # Ordered so first message of each group is processed first
+    media_groups: dict = OrderedDict()  # media_group_id -> {'main': upd, 'photos': [url,...]}
+    singles = []  # (update, None)  — no override_photos needed
+
+    for upd in updates:
+        post = upd.get('channel_post') or upd.get('message') or {}
+        chat_username = post.get('chat', {}).get('username', '').lower()
+
+        if chat_username == 'thailandparsing':
+            thailand_updates.append(upd)
+            continue
+
+        mgid = post.get('media_group_id')
+        if mgid:
+            if mgid not in media_groups:
+                media_groups[mgid] = {'main': upd, 'all_updates': []}
+            else:
+                # If this update has a caption/text, prefer it as the main one
+                caption = post.get('caption') or post.get('text', '')
+                existing_main_post = (
+                    media_groups[mgid]['main'].get('channel_post')
+                    or media_groups[mgid]['main'].get('message') or {}
+                )
+                existing_has_text = existing_main_post.get('caption') or existing_main_post.get('text')
+                if caption and not existing_has_text:
+                    media_groups[mgid]['main'] = upd
+            media_groups[mgid]['all_updates'].append(upd)
+        else:
+            singles.append((upd, None))
+
+    # Build override_photos for each media group
+    vietnam_items = list(singles)
+    for mgid, grp in media_groups.items():
+        # Sort group messages by message_id to keep photo order
+        grp['all_updates'].sort(
+            key=lambda u: (u.get('channel_post') or u.get('message') or {}).get('message_id', 0)
+        )
+        all_photos = []
+        for upd in grp['all_updates']:
+            post = upd.get('channel_post') or upd.get('message') or {}
+            url = _extract_largest_photo_url(post)
+            if url and url not in all_photos:
+                all_photos.append(url)
+        vietnam_items.append((grp['main'], all_photos if all_photos else None))
+
+    return vietnam_items, thailand_updates
+
+
 def run_monitoring_loop():
     from thailandparsing_parser import add_thailand_listings
     _parser_state['running'] = True
@@ -635,17 +713,11 @@ def run_monitoring_loop():
                 data = load_listings()
                 existing_ids = get_existing_ids(data)
                 new_count = 0
-                thailand_updates = []
 
-                for upd in updates:
-                    # Route Thailand messages to Thailand parser
-                    post = upd.get('channel_post') or upd.get('message') or {}
-                    chat_username = post.get('chat', {}).get('username', '').lower()
-                    if chat_username == 'thailandparsing':
-                        thailand_updates.append(upd)
-                        continue
+                vietnam_items, thailand_updates = _group_media_updates(updates)
 
-                    item = process_bot_update(upd)
+                for upd, override_photos in vietnam_items:
+                    item = process_bot_update(upd, override_photos=override_photos)
                     if not item:
                         continue
                     if item['id'] in existing_ids:
@@ -655,7 +727,8 @@ def run_monitoring_loop():
                     data['real_estate'].insert(0, item)
                     existing_ids.add(item['id'])
                     new_count += 1
-                    logger.info(f"New: [{item['city']}] {item['title'][:60]} | {item['price_display']}")
+                    n_photos = len(item.get('all_images') or item.get('photos') or [])
+                    logger.info(f"New: [{item['city']}] {item['title'][:60]} | {item['price_display']} | {n_photos} photo(s)")
 
                 if new_count > 0:
                     save_listings(data)
