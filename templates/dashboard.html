@@ -7717,9 +7717,19 @@
                 multiplier = 1000;
             }
             
-            str = str.replace(/,/g, '.');
-            let num = parseFloat(str.replace(/[^\d.]/g, ''));
+            // Detect if commas/dots are thousand separators (3 digits follow) or decimal separators
+            // e.g. "26,000,000" → all commas are thousand separators → strip them
+            // e.g. "26.5" → dot is decimal → keep
+            let numStr;
+            if (/[\d][\s,.][\d]{3}/.test(str)) {
+                // Has thousand separators — strip spaces, commas, dots used as separators
+                numStr = str.replace(/[^\d]/g, '');
+            } else {
+                // May have decimal separator — keep last . or ,
+                numStr = str.replace(/[^\d.,]/g, '').replace(/,(?=\d{1,2}$)/, '.').replace(/[,\s]/g, '');
+            }
             
+            let num = parseFloat(numStr);
             if (isNaN(num) || num === 0) return priceStr;
             
             if (num < 1000 && multiplier === 1) {
@@ -7744,7 +7754,8 @@
             for (const pattern of patterns) {
                 const match = text.match(pattern);
                 if (match) {
-                    let numStr = match[1].replace(/\s/g, '').replace(',', '.');
+                    let raw = match[1];
+                    let numStr = /[\d][\s,.][\d]{3}/.test(raw) ? raw.replace(/[^\d]/g, '') : raw.replace(/\s/g, '').replace(',', '.');
                     let num = parseFloat(numStr);
                     if (!isNaN(num) && num > 0) {
                         let unit = (match[2] || '').toLowerCase();
@@ -8302,7 +8313,7 @@
                                     <!-- Цена -->
                                     ${(category === 'transport' || category === 'bike_rentals') 
                                         ? (item.price ? `<div style="background: transparent; border: 2px solid #d4af37; color: #d4af37; padding: 10px 12px; border-radius: 8px; margin-bottom: 10px; text-align: center;">
-                                            <span style="font-size: 18px; font-weight: bold;">💰 ${Number(item.price).toLocaleString('vi-VN')} VND</span>
+                                            <span style="font-size: 18px; font-weight: bold;">💰 ${Math.round(Number(item.price)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')} VND</span>
                                         </div>` : '')
                                         : (category === 'tours' 
                                             ? (item.price ? `<div style="background: transparent; border: 2px solid #d4af37; color: #d4af37; padding: 10px 12px; border-radius: 8px; margin-bottom: 10px; text-align: center;">
@@ -8312,7 +8323,9 @@
                                                 ? (() => {
                                                     let realEstatePrice = item.price || extractPriceFromText(item.description || item.text);
                                                     if (realEstatePrice && realEstatePrice !== '0' && realEstatePrice !== 0) {
-                                                        realEstatePrice = typeof realEstatePrice === 'number' ? formatPrice(realEstatePrice.toString()) : (realEstatePrice.includes('VND') ? realEstatePrice : formatPrice(realEstatePrice));
+                                                        // Always reformat — strip existing VND/₫ and reparse to get correct space-separated format
+                                                        const priceClean = String(realEstatePrice).replace(/\s*VND\s*/gi, '').replace(/₫/g, '').trim();
+                                                        realEstatePrice = formatPrice(priceClean);
                                                         return `<div style="background: transparent; border: 2px solid #d4af37; color: #d4af37; padding: 10px 12px; border-radius: 8px; margin-bottom: 10px; text-align: center;">
                                                             <span style="font-size: 18px; font-weight: bold;">💰 ${realEstatePrice}</span>
                                                         </div>`;
