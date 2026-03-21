@@ -212,6 +212,8 @@ def extract_price(text: str):
         (rf'(?:price|цена|стоимость|giá)[^\d]{{0,10}}([\d][\d\s.,]*)\s*(?:{_vnd}|USD|usd|\$|EUR|€)?', 'AUTO'),
     ]
 
+    MIN_VND = 2_000_000  # minimum plausible real estate price in VND
+
     for pattern, currency in patterns:
         match = re.search(pattern, text, re.IGNORECASE)
         if not match:
@@ -240,7 +242,6 @@ def extract_price(text: str):
             else:
                 vnd = int(amount * EUR_TO_VND)
         elif currency == 'VND_GUESS':
-            # Only use if number looks like a plausible VND amount (>= 100,000)
             if amount < 100_000:
                 continue
             vnd = int(amount)
@@ -252,8 +253,11 @@ def extract_price(text: str):
         else:
             continue
 
-        if vnd > 0:
-            return vnd, format_price_vnd(vnd)
+        # Skip prices below minimum — keep searching for a larger one
+        if vnd < MIN_VND:
+            continue
+
+        return vnd, format_price_vnd(vnd)
 
     return None, None
 
