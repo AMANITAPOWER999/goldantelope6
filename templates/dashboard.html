@@ -8300,13 +8300,11 @@
                                             )
                                         )
                                     }
-                                    <!-- WhatsApp и Telegram кнопки -->
+                                    <!-- Group TG и Telegram кнопки -->
                                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
-                                        ${item.whatsapp ? `<a href="https://api.whatsapp.com/send/?phone=${item.whatsapp}&text&type=phone_number&app_absent=0" target="_blank" style="display: block; background: transparent; border: 2px solid #25D366; color: #25D366; padding: 10px; border-radius: 6px; text-align: center; text-decoration: none; font-weight: 600;">
-                                            💬 WhatsApp
-                                        </a>` : `<div style="display: block; background: transparent; border: 2px solid #ccc; color: #999; padding: 10px; border-radius: 6px; text-align: center; font-weight: 600;">
-                                            💬 WhatsApp
-                                        </div>`}
+                                        <a href="https://t.me/vietnamparsing" target="_blank" style="display: block; background: transparent; border: 2px solid #0088cc; color: #0088cc; padding: 10px; border-radius: 6px; text-align: center; text-decoration: none; font-weight: 600;">
+                                            ✈️ Group TG
+                                        </a>
                                         ${(() => {
                                             let tgHref = item.telegram_link || (item.telegram ? `https://t.me/${item.telegram.replace('@','')}` : '') || tgLink || '';
                                             return tgHref
@@ -9385,7 +9383,7 @@
                             ${contactSource ? `<p style="margin:0;font-size:13px;color:#666;">👤 Источник: <b>${contactSource}</b></p>` : ''}
                         </div>
                         <div style="display:flex;flex-direction:column;gap:10px;">
-                            ${item.whatsapp ? `<a href="https://wa.me/${item.whatsapp.replace(/[^0-9]/g,'')}" target="_blank" style="display:block;background:#25D366;text-decoration:none;text-align:center;padding:12px;border-radius:8px;color:white;font-size:14px;font-weight:600;">💬 WhatsApp: ${item.whatsapp}</a>` : ''}
+                            <a href="https://t.me/vietnamparsing" target="_blank" style="display:block;background:#0088cc;text-decoration:none;text-align:center;padding:12px;border-radius:8px;color:white;font-size:14px;font-weight:600;">✈️ Group TG — @vietnamparsing</a>
                             ${contactChannelUrl ? `<a href="${contactChannelUrl}" target="_blank" style="display:block;background:#0088cc;text-decoration:none;text-align:center;padding:12px;border-radius:8px;color:white;font-size:14px;font-weight:600;">✈️ Написать в Telegram: ${contactSource}</a>` : ''}
                             ${postLink ? `<a href="${postLink}" target="_blank" style="display:block;background:#d4af37;text-decoration:none;text-align:center;padding:12px;border-radius:8px;color:white;font-size:14px;font-weight:600;">🔗 Оригинал объявления</a>` : ''}
                         </div>
