@@ -6,6 +6,7 @@ import time
 import requests
 import re
 import hashlib
+import logging
 from pathlib import Path
 import threading
 
@@ -226,68 +227,86 @@ def handle_404(e):
 def index():
     return render_template('dashboard.html')
 
+def _translate_via_mymemory(text: str, target_lang: str) -> str:
+    """Translate a single text using MyMemory API (free, no key needed)."""
+    try:
+        lang_map = {'en': 'en', 'vi': 'vi', 'ru': 'ru'}
+        tgt = lang_map.get(target_lang, 'en')
+        r = requests.get(
+            'https://api.mymemory.translated.net/get',
+            params={'q': text[:450], 'langpair': f'ru|{tgt}'},
+            timeout=8
+        )
+        if r.ok:
+            data = r.json()
+            translated = data.get('responseData', {}).get('translatedText', '')
+            if translated and translated.upper() != text.upper():
+                return translated
+    except Exception as e:
+        logging.debug(f"MyMemory error: {e}")
+    return text
+
+
+def _translate_via_lingva(text: str, target_lang: str) -> str:
+    """Translate a single text using Lingva (Google Translate proxy, free)."""
+    try:
+        import urllib.parse
+        lang_map = {'en': 'en', 'vi': 'vi', 'ru': 'ru'}
+        tgt = lang_map.get(target_lang, 'en')
+        encoded = urllib.parse.quote(text[:1000])
+        instances = [
+            f'https://lingva.ml/api/v1/auto/{tgt}/{encoded}',
+            f'https://lingva.garudalinux.org/api/v1/auto/{tgt}/{encoded}',
+        ]
+        for url in instances:
+            try:
+                r = requests.get(url, timeout=8)
+                if r.ok:
+                    result = r.json().get('translation', '')
+                    if result:
+                        return result
+            except Exception:
+                continue
+    except Exception as e:
+        logging.debug(f"Lingva error: {e}")
+    return text
+
+
+def _translate_one(text: str, target_lang: str) -> str:
+    """Translate one text, with cache check and dual-provider fallback."""
+    if not text or not text.strip():
+        return text
+    cache_key = hashlib.md5(f"{text}:{target_lang}".encode()).hexdigest()
+    if cache_key in translation_cache:
+        return translation_cache[cache_key]
+    translated = _translate_via_lingva(text, target_lang)
+    if translated == text:
+        translated = _translate_via_mymemory(text, target_lang)
+    translation_cache[cache_key] = translated
+    return translated
+
+
 @app.route('/api/translate', methods=['POST'])
 def translate_text():
-    if not GOOGLE_AI_API_KEY:
-        return jsonify({'error': 'API key not configured'}), 500
-    
     data = request.get_json()
     texts = data.get('texts', [])
     target_lang = data.get('lang', 'en')
-    
+
     if not texts:
         return jsonify({'translations': []})
-    
-    lang_names = {'en': 'English', 'vi': 'Vietnamese', 'ru': 'Russian'}
-    target_name = lang_names.get(target_lang, 'English')
-    
-    results = []
-    texts_to_translate = []
-    cache_keys = []
-    
-    for text in texts[:50]:
-        cache_key = hashlib.md5(f"{text}:{target_lang}".encode()).hexdigest()
-        if cache_key in translation_cache:
-            results.append(translation_cache[cache_key])
-        else:
-            results.append(None)
-            texts_to_translate.append(text)
-            cache_keys.append(cache_key)
-    
-    if texts_to_translate:
-        try:
-            combined_text = "\n---SEPARATOR---\n".join(texts_to_translate)
-            prompt = f"Translate the following Russian text(s) to {target_name}. Keep the same format, preserve emojis and special characters. If there are multiple texts separated by ---SEPARATOR---, keep the separator in output. Only output translations, no explanations:\n\n{combined_text}"
-            
-            api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GOOGLE_AI_API_KEY}"
-            response = requests.post(api_url, json={
-                "contents": [{"parts": [{"text": prompt}]}],
-                "generationConfig": {"temperature": 0.3, "maxOutputTokens": 8000}
-            }, timeout=30)
-            
-            if response.status_code == 200:
-                result = response.json()
-                translated = result.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '')
-                translated_parts = translated.split("---SEPARATOR---")
-                
-                idx = 0
-                for i, r in enumerate(results):
-                    if r is None and idx < len(translated_parts):
-                        clean_text = translated_parts[idx].strip()
-                        results[i] = clean_text
-                        if idx < len(cache_keys):
-                            translation_cache[cache_keys[idx]] = clean_text
-                        idx += 1
-        except Exception as e:
-            print(f"Translation error: {e}")
-            for i, r in enumerate(results):
-                if r is None:
-                    results[i] = texts[i] if i < len(texts) else ""
-    
-    for i, r in enumerate(results):
-        if r is None:
-            results[i] = texts[i] if i < len(texts) else ""
-    
+
+    texts = texts[:40]
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    results = [None] * len(texts)
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        future_to_idx = {executor.submit(_translate_one, t, target_lang): i for i, t in enumerate(texts)}
+        for future in as_completed(future_to_idx):
+            idx = future_to_idx[future]
+            try:
+                results[idx] = future.result()
+            except Exception:
+                results[idx] = texts[idx]
+
     return jsonify({'translations': results})
 
 @app.route('/api/ping')

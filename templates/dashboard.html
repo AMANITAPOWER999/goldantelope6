@@ -5450,7 +5450,7 @@
             updateWeather();
             
             if (lang !== 'ru') {
-                translateVisibleCards(lang);
+                setTimeout(() => translateVisibleCards(lang), 400);
             }
         }
         
@@ -5649,30 +5649,20 @@
         let translationCache = {};
         
         async function translateVisibleCards(lang = currentLang) {
-            console.log('translateVisibleCards called, lang:', lang);
             if (lang === 'ru') return;
-            
-            // Ищем карточки только в активных grid-ах с объявлениями (не городские кнопки)
-            const activeContent = document.querySelector('.content.active');
-            if (!activeContent) {
-                console.log('No active content found');
-                return;
-            }
-            
-            const grids = activeContent.querySelectorAll('[id$="-grid"]');
+
+            // Search all visible listing grids on the page
             let cards = [];
-            grids.forEach(grid => {
-                // Ищем listing-card (объявления) и card (старые карточки)
-                const listingCards = grid.querySelectorAll('.listing-card, .card');
-                listingCards.forEach(c => {
-                    // Проверяем что это объявление с h3 и p
-                    if (c.querySelector('h3') && c.querySelector('p')) {
-                        cards.push(c);
-                    }
+            document.querySelectorAll('.listing-grid, [id$="-grid"]').forEach(grid => {
+                // Skip hidden grids
+                if (grid.offsetParent === null && !grid.closest('.content.active')) return;
+                grid.querySelectorAll('.listing-card').forEach(c => {
+                    const h3 = c.querySelector('h3');
+                    const p = c.querySelector('p');
+                    if (h3 && p && h3.textContent.trim()) cards.push(c);
                 });
             });
-            
-            console.log('Found listing cards:', cards.length);
+
             if (cards.length === 0) return;
             
             // Ограничиваем до 30 карточек для скорости
@@ -7180,7 +7170,7 @@
                             console.log('DEBUG: Rendered', items.length, 'visas cards');
                             // Переводим карточки если выбран не русский язык
                             if (currentLang !== 'ru' && typeof translateVisibleCards === 'function') {
-                                setTimeout(() => translateVisibleCards(), 100);
+                                setTimeout(() => translateVisibleCards(), 600);
                             }
                         } catch(renderErr) {
                             console.error('Visas render error:', renderErr);
@@ -8403,7 +8393,7 @@
                         
                         // Переводим карточки если выбран не русский язык
                         if (currentLang !== 'ru' && typeof translateVisibleCards === 'function') {
-                            setTimeout(() => translateVisibleCards(), 100);
+                            setTimeout(() => translateVisibleCards(), 600);
                         }
                     }
                 })
@@ -10634,7 +10624,7 @@
                         grid.innerHTML = items.map(item => renderListingCard(item, 'medicine')).join('');
                         // Переводим карточки если выбран не русский язык
                         if (currentLang !== 'ru' && typeof translateVisibleCards === 'function') {
-                            setTimeout(() => translateVisibleCards(), 100);
+                            setTimeout(() => translateVisibleCards(), 600);
                         }
                     }
                 })
