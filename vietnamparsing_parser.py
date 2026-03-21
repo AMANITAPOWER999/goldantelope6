@@ -7,6 +7,7 @@ import asyncio
 import threading
 import requests
 import html as hlib
+import unicodedata
 from datetime import datetime, timezone
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(message)s')
@@ -98,52 +99,126 @@ def format_price_vnd(amount_vnd: int) -> str:
 
 def parse_number_from_str(s: str) -> float:
     s = s.strip()
-    s = re.sub(r'[\s\u00a0]', '', s)
-    # Detect Vietnamese/European dot-as-thousands-separator format: e.g. 16.000.000
-    # Pattern: digits separated by exactly 3-digit groups with dots
+    s = re.sub(r'[\s\u00a0\xa0]', '', s)
+    if not s:
+        return 0.0
+
+    # Multiple dots: 16.000.000 → thousands separator
     if re.match(r'^\d{1,3}(\.\d{3})+$', s):
-        s = s.replace('.', '')
+        try:
+            return float(s.replace('.', ''))
+        except:
+            return 0.0
+
+    # Both comma and dot present
+    if ',' in s and '.' in s:
+        last_comma = s.rfind(',')
+        last_dot = s.rfind('.')
+        if last_dot > last_comma:
+            # English: 1,234.56
+            s = s.replace(',', '')
+        else:
+            # European: 1.234,56
+            s = s.replace('.', '').replace(',', '.')
         try:
             return float(s)
         except:
             return 0.0
-    # Regular parsing: commas as thousands, dot as decimal
-    s = s.replace(',', '').replace('.', '')
+
+    # Only commas: 6,500,000 (thousands) or 6,5 (European decimal)
+    if ',' in s:
+        parts = s.split(',')
+        if len(parts) > 2 or (len(parts) == 2 and len(parts[-1]) == 3):
+            # All groups after first have 3 digits → thousands separator
+            try:
+                return float(s.replace(',', ''))
+            except:
+                return 0.0
+        else:
+            # Decimal comma: 6,5 → 6.5
+            try:
+                return float(s.replace(',', '.'))
+            except:
+                return 0.0
+
+    # Only dot(s)
+    if '.' in s:
+        parts = s.split('.')
+        if len(parts) == 2:
+            if len(parts[1]) == 3 and parts[1].isdigit() and parts[0].isdigit():
+                # Ambiguous: 8.500 — treat as thousands separator (8500)
+                try:
+                    return float(s.replace('.', ''))
+                except:
+                    return 0.0
+            else:
+                # Decimal: 8.5, 8.50, 8.75
+                try:
+                    return float(s)
+                except:
+                    return 0.0
+
     try:
         return float(s)
     except:
         return 0.0
 
 
+def normalize_price_text(text: str) -> str:
+    # Normalize Unicode compatibility characters (e.g. 𝕧𝕟𝕕 → vnd)
+    text = unicodedata.normalize('NFKC', text)
+    # Remove URLs so message IDs inside t.me/channel/12345 aren't parsed as prices
+    text = re.sub(r'https?://\S+', '', text)
+    return text
+
+
 def extract_price(text: str):
     if not text:
         return None, None
 
+    # Normalize Unicode lookalikes (𝕧𝕟𝕕 → vnd, etc.) and strip URLs
+    text = normalize_price_text(text)
+
+    # Russian million words: миллион / миллиона / миллионов (+ МИЛЛИОНОВ etc.)
+    _mln_ru = r'(?:миллионов|миллиона|миллион|млн)'
+    _mln_en = r'(?:million|mln)'
+    _mln_vi = r'(?:triệu|trieu|tr\.?\s?đ|tr\b)'
+    _mln_any = rf'(?:{_mln_ru}|{_mln_en}|{_mln_vi})'
+    _ty_vi = r'(?:tỷ|ty|tỉ)'
+    _vnd = r'(?:VND|vnd|донг|đồng|₫)'
+    _per = r'(?:/\s*(?:month|mon|мес(?:яц)?|mo)\b)?'  # optional /month /мес suffix
+
     patterns = [
-        (r'(\d{1,3}(?:\.\d{3})+)\s*(?:VND|vnd|Vnd|донг|đồng|₫|$|\b)', 'VND'),
-        (r'(\d[\d\s.,]*)\s*(?:VND|vnd|Vnd|донг|đồng|₫)', 'VND'),
-        (r'(\d[\d\s.,]*)\s*(?:tỷ|ty|tỉ)\b', 'VND_TY'),
-        (r'(\d[\d\s.,]*)\s*(?:triệu|trieu|tr\.?\s?đ|tr\b)', 'VND_MLN'),
-        (r'(\d[\d\s.,]*)\s*(?:млн|million)\s*(?:dong|донг|VND)?', 'VND_MLN'),
-        (r'(\d[\d\s.,]*)\s*(?:USD|usd|\$|доллар)', 'USD'),
-        (r'\$\s*(\d[\d\s.,]*)', 'USD'),
-        (r'(\d[\d\s.,]*)\s*(?:EUR|eur|€|евро)', 'EUR'),
-        (r'€\s*(\d[\d\s.,]*)', 'EUR'),
-        (r'(?:price|цена|стоимость|giá)[^\d]{0,10}(\d[\d\s.,]*)\s*(?:VND|vnd|Vnd|USD|usd|\$|EUR|€)?', 'AUTO'),
+        # Vietnamese dot-separated: 16.000.000 VND
+        (rf'(\d{{1,3}}(?:\.\d{{3}})+)\s*{_vnd}', 'VND'),
+        # Plain number + VND (including space-separated: 4 500 000 vnd)
+        (rf'([\d][\d\s.,]*?)\s*{_vnd}{_per}', 'VND'),
+        # Tỷ (billion VND)
+        (rf'([\d][\d.,]*)\s*{_ty_vi}', 'VND_TY'),
+        # Millions VND (any million word) + optional VND + optional /month
+        (rf'([\d][\d.,]*)\s*{_mln_any}\s*{_vnd}?{_per}', 'VND_MLN'),
+        # USD
+        (r'([\d][\d\s.,]*)\s*(?:USD|usd|\$|доллар)', 'USD'),
+        (r'\$\s*([\d][\d\s.,]*)', 'USD'),
+        # EUR
+        (r'([\d][\d\s.,]*)\s*(?:EUR|eur|€|евро)', 'EUR'),
+        (r'€\s*([\d][\d\s.,]*)', 'EUR'),
+        # Number with /month or /мес without currency → assume VND
+        (rf'([\d][\d\s.,]{{4,}}){_per}', 'VND_GUESS'),
+        # Price keyword context
+        (rf'(?:price|цена|стоимость|giá)[^\d]{{0,10}}([\d][\d\s.,]*)\s*(?:{_vnd}|USD|usd|\$|EUR|€)?', 'AUTO'),
     ]
 
     for pattern, currency in patterns:
         match = re.search(pattern, text, re.IGNORECASE)
         if not match:
             continue
-        raw = match.group(1)
+        raw = match.group(1).strip()
         amount = parse_number_from_str(raw)
         if amount <= 0:
             continue
 
-        if currency == 'VND_DOT':
-            vnd = int(amount * 1000)
-        elif currency == 'VND':
+        if currency == 'VND':
             vnd = int(amount)
             if vnd < 1000:
                 vnd *= 1_000_000
@@ -161,6 +236,11 @@ def extract_price(text: str):
                 vnd = int(amount)
             else:
                 vnd = int(amount * EUR_TO_VND)
+        elif currency == 'VND_GUESS':
+            # Only use if number looks like a plausible VND amount (>= 100,000)
+            if amount < 100_000:
+                continue
+            vnd = int(amount)
         elif currency == 'AUTO':
             if amount < 10_000:
                 vnd = int(amount * USD_TO_VND)
