@@ -5460,6 +5460,11 @@
             
             if (lang !== 'ru') {
                 setTimeout(() => translateVisibleCards(lang), 400);
+            } else {
+                // Restore all card texts to original Russian from data-orig
+                document.querySelectorAll('[data-orig]').forEach(el => {
+                    el.textContent = el.getAttribute('data-orig');
+                });
             }
         }
         
@@ -5666,7 +5671,8 @@
             const allElems = [];
 
             document.querySelectorAll('.listing-grid').forEach(grid => {
-                if (grid.offsetParent === null && !grid.closest('.content.active')) return;
+                // Only process grids in visible (active) tabs
+                if (!grid.closest('.content.active') && !grid.closest('.content[style*="display: block"]')) return;
                 grid.querySelectorAll('.card, .listing-card').forEach(c => {
                     const h3 = c.querySelector('h3');
                     if (!h3) return;
