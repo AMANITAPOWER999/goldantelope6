@@ -5661,75 +5661,113 @@
         }
         
         let translationCache = {};
-        
-        async function translateVisibleCards(lang = currentLang) {
+        let translationObserver = null;
+        let translationQueue = [];
+        let translationFlushTimer = null;
+        let activeTranslationLang = null;
+
+        // Extract translatable elements from a card
+        function _getCardElems(card) {
+            const h3 = card.querySelector('h3');
+            if (!h3) return [];
+            const elems = [{ el: h3.querySelector('a') || h3, maxLen: 350 }];
+            const descEl = h3.nextElementSibling;
+            if (descEl && !descEl.querySelector('input,button,select')) {
+                elems.push({ el: descEl, maxLen: 500 });
+            }
+            return elems;
+        }
+
+        // Queue a single element for translation
+        function _queueElem(el, maxLen, lang) {
+            const original = el.getAttribute('data-orig') || el.textContent.trim();
+            if (!original || original.length < 3) return;
+            el.setAttribute('data-orig', original);
+            const cacheKey = `${original.substring(0, 120)}:${lang}`;
+            if (translationCache[cacheKey]) {
+                el.textContent = translationCache[cacheKey];
+                return;
+            }
+            if (el.getAttribute('data-tq') === lang) return; // already queued
+            el.setAttribute('data-tq', lang);
+            translationQueue.push({ el, original, maxLen, lang });
+            _scheduleFlush();
+        }
+
+        function _scheduleFlush() {
+            if (translationFlushTimer) return;
+            translationFlushTimer = setTimeout(_flushQueue, 150);
+        }
+
+        async function _flushQueue() {
+            translationFlushTimer = null;
+            if (translationQueue.length === 0) return;
+            const batch = translationQueue.splice(0, 30);
+            const lang = batch[0].lang;
+            const texts = batch.map(item => item.original.substring(0, item.maxLen));
+            try {
+                const resp = await fetch('/api/translate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ texts, lang })
+                });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    data.translations.forEach((translated, idx) => {
+                        if (!batch[idx] || !translated || translated === batch[idx].original) return;
+                        batch[idx].el.textContent = translated;
+                        batch[idx].el.removeAttribute('data-tq');
+                        translationCache[`${batch[idx].original.substring(0, 120)}:${lang}`] = translated;
+                    });
+                }
+            } catch (e) { console.log('[translate] flush error:', e); }
+            // Schedule next flush if items remain (500ms gap between API calls)
+            if (translationQueue.length > 0) {
+                translationFlushTimer = setTimeout(_flushQueue, 500);
+            }
+        }
+
+        function translateVisibleCards(lang = currentLang) {
             if (lang === 'ru') return;
 
-            // Collect ALL translatable elements from all visible grids (no card limit)
-            // Cards: .card (real estate) or .listing-card (other sections)
-            // For each card: title = h3 or h3>a, description = h3.nextElementSibling (div or p)
-            const allElems = [];
+            // Cancel any existing observer and pending queue for old lang
+            translationQueue = [];
+            activeTranslationLang = lang;
+            if (translationObserver) { translationObserver.disconnect(); translationObserver = null; }
 
+            // Collect all cards from active grids
+            const allCards = [];
             document.querySelectorAll('.listing-grid').forEach(grid => {
-                // Only process grids in visible (active) tabs
                 if (!grid.closest('.content.active') && !grid.closest('.content[style*="display: block"]')) return;
-                grid.querySelectorAll('.card, .listing-card').forEach(c => {
-                    const h3 = c.querySelector('h3');
-                    if (!h3) return;
-                    // Title: prefer <a> inside h3 to keep href intact
-                    const titleEl = h3.querySelector('a') || h3;
-                    allElems.push({ el: titleEl, maxLen: 350 });
-                    // Description: next sibling element after h3 (div or p)
-                    const descEl = h3.nextElementSibling;
-                    if (descEl && !descEl.querySelector('input,button,select')) {
-                        allElems.push({ el: descEl, maxLen: 500 });
-                    }
+                grid.querySelectorAll('.card, .listing-card').forEach(c => allCards.push(c));
+            });
+            if (allCards.length === 0) return;
+
+            // Phase 1: immediately queue viewport-visible cards (+ 300px margin)
+            const vh = window.innerHeight;
+            allCards.forEach(c => {
+                const r = c.getBoundingClientRect();
+                if (r.top < vh + 300 && r.bottom > -300) {
+                    _getCardElems(c).forEach(({ el, maxLen }) => _queueElem(el, maxLen, lang));
+                }
+            });
+
+            // Phase 2: observe deferred cards — translate as user scrolls
+            translationObserver = new IntersectionObserver((entries) => {
+                if (activeTranslationLang !== lang) return;
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) return;
+                    translationObserver.unobserve(entry.target);
+                    _getCardElems(entry.target).forEach(({ el, maxLen }) => _queueElem(el, maxLen, lang));
                 });
-            });
+            }, { rootMargin: '300px 0px' });
 
-            if (allElems.length === 0) return;
-
-            // Apply cache immediately, collect what still needs translating
-            const pending = [];
-            allElems.forEach(({ el, maxLen }) => {
-                const original = el.getAttribute('data-orig') || el.textContent.trim();
-                if (!original || original.length < 3) return;
-                el.setAttribute('data-orig', original);
-                const cacheKey = `${original.substring(0, 120)}:${lang}`;
-                if (translationCache[cacheKey]) {
-                    el.textContent = translationCache[cacheKey];
-                } else {
-                    pending.push({ el, original, maxLen });
+            allCards.forEach(c => {
+                const r = c.getBoundingClientRect();
+                if (!(r.top < vh + 300 && r.bottom > -300)) {
+                    translationObserver.observe(c);
                 }
             });
-
-            if (pending.length === 0) return;
-
-            // Translate in batches of 30 texts to avoid rate limits
-            const BATCH = 30;
-            for (let i = 0; i < pending.length; i += BATCH) {
-                const batch = pending.slice(i, i + BATCH);
-                const texts = batch.map(item => item.original.substring(0, item.maxLen));
-                try {
-                    const resp = await fetch('/api/translate', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ texts, lang })
-                    });
-                    if (resp.ok) {
-                        const data = await resp.json();
-                        data.translations.forEach((translated, idx) => {
-                            if (!batch[idx] || !translated || translated === batch[idx].original) return;
-                            batch[idx].el.textContent = translated;
-                            translationCache[`${batch[idx].original.substring(0, 120)}:${lang}`] = translated;
-                        });
-                    }
-                } catch (e) {
-                    console.log('[translate] batch error:', e);
-                }
-                // Small pause between batches to be kind to the translation API
-                if (i + BATCH < pending.length) await new Promise(r => setTimeout(r, 300));
-            }
         }
         
         document.addEventListener('DOMContentLoaded', function() {
