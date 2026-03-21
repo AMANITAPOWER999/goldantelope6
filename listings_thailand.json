@@ -3,7 +3,50 @@
   "tours": [],
   "entertainment": [],
   "transport": [],
-  "real_estate": [],
+  "real_estate": [
+    {
+      "id": "thailand_5807",
+      "title": "Realty-Phuket.com - портал недвижимости на Пхукете в Таиланде . Большой каталог жилья для покупки и аренды. Для покупате",
+      "description": "Источник: @realty_in_thailand\nСсылка: https://t.me/realty_in_thailand/1200502\nRealty-Phuket.com - портал недвижимости на Пхукете в Таиланде . Большой каталог жилья для покупки и аренды. Для покупателей и арендаторов удобный поиск и выбор квартир, вилл, кондоминиумов и домов с актуальными предложениями, прозрачной информацией и поддержкой экспертов. Для агентств недвижимости, агентов и брокеров эффективная платформа для продвижения ваших объектов, расширения клиентской базы и быстрого заключения ",
+      "text": "Источник: @realty_in_thailand\nСсылка: https://t.me/realty_in_thailand/1200502\nRealty-Phuket.com - портал недвижимости на Пхукете в Таиланде . Большой каталог жилья для покупки и аренды. Для покупателей и арендаторов удобный поиск и выбор квартир, вилл, кондоминиумов и домов с актуальными предложениями, прозрачной информацией и поддержкой экспертов. Для агентств недвижимости, агентов и брокеров эффективная платформа для продвижения ваших объектов, расширения клиентской базы и быстрого заключения сделок. Добавить объект. Realty-Phuket.com объединяет лучших профессионалов и клиентов, делая покупку и аренду недвижимости на Пхукете простой и выгодной! ПРОДАЖА АРЕНДА Профессиональные услуги от экспертов: Бесплатный тур на авто по недвижимости Пхукета. Подбор и поиск недвижимости. Онлайн-показ по видеосвязи. Проверка на юридическую чистоту. Управление недвижимостью. Юридическое сопровождение сделок.",
+      "price": 1200502,
+      "price_display": "1 200 502 THB",
+      "city": "Пхукет",
+      "listing_type": "sale",
+      "contact": "@realty_in_thailand",
+      "photos": [
+        "https://api.telegram.org/file/bot8767069054:AAGNAhw-ZBXZf8ppytp0MKK25B9VsdOKG14/photos/file_9594.jpg"
+      ],
+      "image_url": "https://api.telegram.org/file/bot8767069054:AAGNAhw-ZBXZf8ppytp0MKK25B9VsdOKG14/photos/file_9594.jpg",
+      "all_images": [
+        "https://api.telegram.org/file/bot8767069054:AAGNAhw-ZBXZf8ppytp0MKK25B9VsdOKG14/photos/file_9594.jpg"
+      ],
+      "date": "2026-03-21T05:58:08+00:00",
+      "source": "telegram",
+      "channel": "thailandparsing"
+    },
+    {
+      "id": "thailand_5806",
+      "title": "Svoboda Clinic Phuket Основные услуги: Экстренная детоксикация и вывод из запоя Комплексное лечение зависимостей (наркол",
+      "description": "Источник: @phuket_rentas\nСсылка: https://t.me/phuket_rentas/203679\nSvoboda Clinic Phuket Основные услуги: Экстренная детоксикация и вывод из запоя Комплексное лечение зависимостей (наркология и психотерапия) Восстановительные капельницы для детокса и поддержки организма Тг канал: Написать: svoboda_phuket",
+      "text": "Источник: @phuket_rentas\nСсылка: https://t.me/phuket_rentas/203679\nSvoboda Clinic Phuket Основные услуги: Экстренная детоксикация и вывод из запоя Комплексное лечение зависимостей (наркология и психотерапия) Восстановительные капельницы для детокса и поддержки организма Тг канал: Написать: svoboda_phuket",
+      "price": 203679,
+      "price_display": "203 679 THB",
+      "city": "Пхукет",
+      "listing_type": "rent",
+      "contact": "@phuket_rentas",
+      "photos": [
+        "https://api.telegram.org/file/bot8767069054:AAGNAhw-ZBXZf8ppytp0MKK25B9VsdOKG14/photos/file_9566.jpg"
+      ],
+      "image_url": "https://api.telegram.org/file/bot8767069054:AAGNAhw-ZBXZf8ppytp0MKK25B9VsdOKG14/photos/file_9566.jpg",
+      "all_images": [
+        "https://api.telegram.org/file/bot8767069054:AAGNAhw-ZBXZf8ppytp0MKK25B9VsdOKG14/photos/file_9566.jpg"
+      ],
+      "date": "2026-03-21T05:55:49+00:00",
+      "source": "telegram",
+      "channel": "thailandparsing"
+    }
+  ],
   "exchange": [],
   "kids": [],
   "visas": [],

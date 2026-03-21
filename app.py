@@ -706,7 +706,29 @@ def get_city_counts(category):
     listings = data[category]
     listings = [x for x in listings if not x.get('hidden', False)]
     
-    # Расширенный маппинг всех вариантов названий городов
+    if country == 'thailand':
+        city_keywords = {
+            'Бангкок': ['бангкок', 'bangkok', 'sukhumvit', 'silom', 'sathorn'],
+            'Пхукет': ['пхукет', 'phuket', 'patong', 'kata', 'karon', 'rawai', 'chalong', 'kamala'],
+            'Паттайя': ['паттайя', 'pattaya', 'jomtien', 'naklua', 'pratumnak'],
+            'Самуи': ['самуи', 'samui', 'ko samui', 'koh samui', 'chaweng', 'lamai'],
+            'Чиангмай': ['чиангмай', 'chiang mai', 'chiangmai', 'nimman'],
+            'Краби': ['краби', 'krabi', 'ao nang'],
+            'Хуахин': ['хуахин', 'hua hin'],
+            'Чианграй': ['чианграй', 'chiang rai'],
+            'Удон Тхани': ['удон тхани', 'udon thani'],
+        }
+        cities = list(city_keywords.keys())
+        counts = {city: 0 for city in cities}
+        for item in listings:
+            item_city = str(item.get('city', '') or item.get('location', '')).lower()
+            search_text = f"{item.get('title', '')} {item.get('description', '')} {item_city}".lower()
+            for city_name, keywords in city_keywords.items():
+                if any(kw in search_text or kw in item_city for kw in keywords):
+                    counts[city_name] += 1
+        return jsonify(counts)
+
+    # Vietnam city mapping
     city_name_mapping = {
         # Нячанг
         'Nha Trang': 'Нячанг', 'nha trang': 'Нячанг', 'nhatrang': 'Нячанг', 'nha_trang': 'Нячанг', 'Нячанг': 'Нячанг', 'нячанг': 'Нячанг',
@@ -1186,7 +1208,18 @@ def get_listings(category):
                 'hochiminh': ['hochiminh', 'ho chi minh', 'hcm', 'хошимин', 'сайгон'],
                 'hanoi': ['hanoi', 'ha noi', 'ханой'],
                 'phuquoc': ['phuquoc', 'phu quoc', 'фукуок'],
-                'dalat': ['dalat', 'da lat', 'далат']
+                'dalat': ['dalat', 'da lat', 'далат'],
+                # Thailand cities
+                'бангкок': ['бангкок', 'bangkok'],
+                'пхукет': ['пхукет', 'phuket'],
+                'паттайя': ['паттайя', 'pattaya'],
+                'самуи': ['самуи', 'samui', 'ko samui', 'koh samui'],
+                'чиангмай': ['чиангмай', 'chiang mai', 'chiangmai'],
+                'краби': ['краби', 'krabi'],
+                'хуахин': ['хуахин', 'hua hin'],
+                'чианграй': ['чианграй', 'chiang rai'],
+                'удон тхани': ['удон тхани', 'udon thani'],
+                'тайланд': ['тайланд', 'thailand'],
             }
             targets = city_mapping.get(city_filter, [city_filter])
             filtered = [x for x in filtered if any(t in str(x.get('city', '')).lower() or t in str(x.get('city_ru', '')).lower() for t in targets)]

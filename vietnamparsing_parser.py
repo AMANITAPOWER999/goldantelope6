@@ -522,9 +522,10 @@ def run_initial_fetch():
 
 
 def run_monitoring_loop():
+    from thailandparsing_parser import add_thailand_listings
     _parser_state['running'] = True
     last_update_id = 0
-    logger.info("Starting bot update polling loop...")
+    logger.info("Starting bot update polling loop (Vietnam + Thailand)...")
 
     while _parser_state['running']:
         try:
@@ -533,8 +534,16 @@ def run_monitoring_loop():
                 data = load_listings()
                 existing_ids = get_existing_ids(data)
                 new_count = 0
+                thailand_updates = []
 
                 for upd in updates:
+                    # Route Thailand messages to Thailand parser
+                    post = upd.get('channel_post') or upd.get('message') or {}
+                    chat_username = post.get('chat', {}).get('username', '').lower()
+                    if chat_username == 'thailandparsing':
+                        thailand_updates.append(upd)
+                        continue
+
                     item = process_bot_update(upd)
                     if not item:
                         continue
@@ -551,6 +560,9 @@ def run_monitoring_loop():
                     save_listings(data)
                     _parser_state['new_today'] = _parser_state.get('new_today', 0) + new_count
                     _parser_state['total_parsed'] = _parser_state.get('total_parsed', 0) + new_count
+
+                if thailand_updates:
+                    add_thailand_listings(thailand_updates)
 
             _parser_state['last_run'] = datetime.now(timezone.utc).isoformat()
         except Exception as e:
