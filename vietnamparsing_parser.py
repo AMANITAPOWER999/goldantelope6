@@ -652,93 +652,8 @@ _parser_state = {
     'status': 'idle',
 }
 
-_thailand_import_state = {
-    'running': False,
-    'status': 'idle',
-    'progress': 0,
-    'total': 0,
-    'forwarded': 0,
-    'processed': 0,
-    'error': None,
-    'started_at': None,
-    'finished_at': None,
-}
-
-THAILAND_CHAT_ID = -1003897335333
-VIETNAM_CHANNEL = '@vietnamparsing'
-
-
 def get_parser_state() -> dict:
     return _parser_state.copy()
-
-
-def get_thailand_import_state() -> dict:
-    return _thailand_import_state.copy()
-
-
-def _forward_thailand_batch_to_vietnam(msg_ids: list) -> int:
-    """Forward a batch of Thailand message IDs to @vietnamparsing for processing by monitoring loop."""
-    if not BOT_TOKEN or not msg_ids:
-        return 0
-    success = 0
-    for msg_id in msg_ids:
-        try:
-            r = requests.post(
-                f'https://api.telegram.org/bot{BOT_TOKEN}/forwardMessage',
-                json={'chat_id': VIETNAM_CHANNEL, 'from_chat_id': THAILAND_CHAT_ID, 'message_id': msg_id},
-                timeout=10
-            )
-            if r.ok and r.json().get('ok'):
-                success += 1
-            elif r.json().get('error_code') == 429:
-                retry_after = r.json().get('parameters', {}).get('retry_after', 10)
-                time.sleep(retry_after)
-        except Exception as e:
-            logger.warning(f"[TH Import] Forward failed for msg_id={msg_id}: {e}")
-        time.sleep(0.15)
-    return success
-
-
-def fetch_thailand_full_history():
-    """Background function: forward all historical Thailand messages to @vietnamparsing."""
-    from thailandparsing_parser import load_listings as th_load
-    _thailand_import_state['running'] = True
-    _thailand_import_state['status'] = 'running'
-    _thailand_import_state['error'] = None
-    _thailand_import_state['started_at'] = datetime.now(timezone.utc).isoformat()
-    _thailand_import_state['forwarded'] = 0
-
-    try:
-        data = th_load()
-        items = data.get('real_estate', [])
-        ids = [int(x['id'].replace('thailand_', '')) for x in items if x.get('id', '').startswith('thailand_')]
-        min_existing = min(ids) if ids else 6000
-        total = max(min_existing - 1, 0)
-        _thailand_import_state['total'] = total
-        logger.info(f"[TH Import] Starting history fetch for msg IDs 1 to {total}")
-
-        batch_size = 20
-        for start in range(1, min_existing, batch_size):
-            if not _thailand_import_state['running']:
-                _thailand_import_state['status'] = 'stopped'
-                break
-            batch = list(range(start, min(start + batch_size, min_existing)))
-            _thailand_import_state['progress'] = start
-            count = _forward_thailand_batch_to_vietnam(batch)
-            _thailand_import_state['forwarded'] += count
-            logger.info(f"[TH Import] Forwarded batch {start}-{batch[-1]}: {count}/{len(batch)} ok")
-            time.sleep(2.0)
-
-        if _thailand_import_state['status'] == 'running':
-            _thailand_import_state['status'] = 'done'
-            logger.info(f"[TH Import] Done. Forwarded {_thailand_import_state['forwarded']} messages.")
-    except Exception as e:
-        logger.error(f"[TH Import] Error: {e}")
-        _thailand_import_state['status'] = 'error'
-        _thailand_import_state['error'] = str(e)
-    finally:
-        _thailand_import_state['running'] = False
-        _thailand_import_state['finished_at'] = datetime.now(timezone.utc).isoformat()
 
 
 def run_initial_fetch():
@@ -773,34 +688,6 @@ def _group_media_updates(updates: list) -> tuple[list, list]:
         if chat_username == 'thailandparsing':
             thailand_updates.append(upd)
             continue
-
-        # Detect messages forwarded FROM @thailandparsing INTO @vietnamparsing
-        # (These are historical messages being imported via admin endpoint)
-        if chat_username == 'vietnamparsing':
-            fwd_origin_chat = (
-                post.get('forward_origin', {}).get('chat', {}).get('username', '')
-                or post.get('forward_from_chat', {}).get('username', '')
-            ).lower()
-            if fwd_origin_chat == 'thailandparsing':
-                orig_msg_id = (
-                    post.get('forward_origin', {}).get('message_id')
-                    or post.get('forward_from_message_id')
-                    or 0
-                )
-                vn_del_msg_id = post.get('message_id')
-                if orig_msg_id:
-                    modified_post = dict(post)
-                    modified_post['message_id'] = orig_msg_id
-                    modified_post['chat'] = {'id': THAILAND_CHAT_ID, 'username': 'thailandparsing', 'type': 'supergroup'}
-                    modified_upd = {
-                        'channel_post': modified_post,
-                        'update_id': upd.get('update_id'),
-                        '_delete_from_vn': vn_del_msg_id,
-                    }
-                    thailand_updates.append(modified_upd)
-                else:
-                    logger.warning(f"[TH Import] Forwarded Thailand msg in VN but no orig_msg_id: {post.get('message_id')}")
-                continue
 
         mgid = post.get('media_group_id')
         if mgid:
