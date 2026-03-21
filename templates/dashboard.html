@@ -5031,6 +5031,39 @@
                 </div>
 
                 <div id="admin-tools" style="display: none;">
+
+                    <!-- Thailand History Fetch (Telethon) -->
+                    <div style="background: #fff8e1; border-radius: 12px; padding: 20px; border: 1px solid #ffe082; margin-bottom: 20px;">
+                        <h3 style="margin: 0 0 5px 0; color: #e65100;">🇹🇭 Загрузка истории Тайланда (Telethon)</h3>
+                        <p style="font-size: 12px; color: #777; margin: 0 0 15px 0;">Для загрузки ALL постов из supergroup @thailandparsing нужна авторизация через аккаунт Telegram.</p>
+
+                        <div id="th-auth-step1" style="margin-bottom: 15px;">
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end;">
+                                <div style="flex: 1; min-width: 160px;">
+                                    <label style="font-size: 12px; font-weight: 600; color: #555;">Шаг 1: Номер телефона</label>
+                                    <input type="text" id="th-phone-input" placeholder="+79001234567" style="width: 100%; padding: 9px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; margin-top: 4px; box-sizing: border-box;">
+                                </div>
+                                <button onclick="thSendCode()" style="padding: 9px 18px; background: #f57c00; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; white-space: nowrap; height: 38px;">Отправить код</button>
+                            </div>
+                            <div id="th-code-step" style="display: none; margin-top: 12px;">
+                                <div style="display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap;">
+                                    <div style="flex: 1; min-width: 120px;">
+                                        <label style="font-size: 12px; font-weight: 600; color: #555;">Шаг 2: Код из Telegram</label>
+                                        <input type="text" id="th-code-input" placeholder="12345" style="width: 100%; padding: 9px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; margin-top: 4px; box-sizing: border-box;">
+                                    </div>
+                                    <button onclick="thVerifyCode()" style="padding: 9px 18px; background: #388e3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; white-space: nowrap; height: 38px;">Подтвердить</button>
+                                </div>
+                            </div>
+                            <div id="th-auth-status" style="font-size: 12px; margin-top: 8px; color: #555;"></div>
+                        </div>
+
+                        <div style="border-top: 1px solid #ffe082; padding-top: 15px;">
+                            <p style="font-size: 12px; color: #777; margin: 0 0 10px 0;">После авторизации — загрузить все исторические сообщения:</p>
+                            <button onclick="thFetchHistory()" style="padding: 10px 20px; background: #1565c0; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">📥 Загрузить всю историю</button>
+                            <div id="th-fetch-status" style="font-size: 12px; margin-top: 8px; color: #555;"></div>
+                        </div>
+                    </div>
+
                     <!-- Модерация объявлений -->
                     <div style="background: white; border-radius: 12px; padding: 20px; border: 1px solid #ddd; margin-bottom: 20px;">
                         <h3 style="margin: 0 0 15px 0; color: #333;">📋 Модерация объявлений</h3>
@@ -6427,6 +6460,81 @@
             }
         }
         
+        async function thSendCode() {
+            const phone = document.getElementById('th-phone-input').value.trim();
+            const status = document.getElementById('th-auth-status');
+            if (!phone) { status.textContent = 'Введите номер телефона'; return; }
+            status.textContent = 'Отправка кода...';
+            try {
+                const r = await fetch('/api/admin/thailand-auth-start', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({password: adminPassword, phone: phone})
+                });
+                const d = await r.json();
+                if (d.success) {
+                    status.style.color = '#2e7d32';
+                    status.textContent = d.message + '. Введите код ниже.';
+                    document.getElementById('th-code-step').style.display = 'block';
+                } else {
+                    status.style.color = '#c62828';
+                    status.textContent = 'Ошибка: ' + (d.error || 'unknown');
+                }
+            } catch(e) {
+                status.style.color = '#c62828';
+                status.textContent = 'Ошибка: ' + e.message;
+            }
+        }
+
+        async function thVerifyCode() {
+            const code = document.getElementById('th-code-input').value.trim();
+            const status = document.getElementById('th-auth-status');
+            if (!code) { status.textContent = 'Введите код'; return; }
+            status.textContent = 'Проверка кода...';
+            try {
+                const r = await fetch('/api/admin/thailand-auth-verify', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({password: adminPassword, code: code})
+                });
+                const d = await r.json();
+                if (d.success) {
+                    status.style.color = '#2e7d32';
+                    status.textContent = '✅ ' + d.message + '. Теперь можно загрузить историю!';
+                    document.getElementById('th-code-step').style.display = 'none';
+                } else {
+                    status.style.color = '#c62828';
+                    status.textContent = 'Ошибка: ' + (d.error || 'unknown');
+                }
+            } catch(e) {
+                status.style.color = '#c62828';
+                status.textContent = 'Ошибка: ' + e.message;
+            }
+        }
+
+        async function thFetchHistory() {
+            const status = document.getElementById('th-fetch-status');
+            status.textContent = 'Запуск загрузки истории...';
+            try {
+                const r = await fetch('/api/admin/thailand-fetch-history', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({password: adminPassword})
+                });
+                const d = await r.json();
+                if (d.success) {
+                    status.style.color = '#1565c0';
+                    status.textContent = '⏳ ' + d.message;
+                } else {
+                    status.style.color = '#c62828';
+                    status.textContent = 'Ошибка: ' + (d.error || 'unknown');
+                }
+            } catch(e) {
+                status.style.color = '#c62828';
+                status.textContent = 'Ошибка: ' + e.message;
+            }
+        }
+
         async function addToBlacklist() {
             const input = document.getElementById('blacklist-username');
             const username = input.value.trim();

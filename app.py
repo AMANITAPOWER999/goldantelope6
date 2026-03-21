@@ -8,6 +8,9 @@ import re
 import hashlib
 import logging
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 import threading
 
 # Lock for file operations to prevent race conditions
@@ -3678,6 +3681,272 @@ def vietnamparsing_refresh():
         return jsonify({'success': True, 'message': 'Refresh started in background'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+# ============ THAILAND HISTORY FETCH (Telethon) ============
+
+_th_auth_state = {}  # phone, phone_code_hash, loop, client
+TELETHON_SESSION = 'telegram_user_session'
+
+
+def _get_telethon_creds():
+    api_id = int(os.environ.get('TELETHON_API_ID', 0))
+    api_hash = os.environ.get('TELETHON_API_HASH', '')
+    return api_id, api_hash
+
+
+def _run_async_in_thread(coro):
+    """Run async coroutine in a dedicated thread with its own event loop."""
+    import asyncio
+    result_holder = [None]
+    error_holder = [None]
+
+    def _thread():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            result_holder[0] = loop.run_until_complete(coro)
+        except Exception as e:
+            error_holder[0] = e
+        finally:
+            loop.close()
+
+    t = threading.Thread(target=_thread)
+    t.start()
+    t.join(timeout=30)
+    if error_holder[0]:
+        raise error_holder[0]
+    return result_holder[0]
+
+
+@app.route('/api/admin/thailand-auth-start', methods=['POST'])
+def thailand_auth_start():
+    global _th_auth_state
+    data_req = request.json or {}
+    password = data_req.get('password', '')
+    phone = data_req.get('phone', '').strip()
+    is_valid, _ = check_admin_password(password)
+    if not is_valid:
+        return jsonify({'error': 'Unauthorized'}), 401
+    if not phone:
+        return jsonify({'error': 'Phone number required'}), 400
+
+    api_id, api_hash = _get_telethon_creds()
+    if not api_id or not api_hash:
+        return jsonify({'error': 'TELETHON_API_ID / TELETHON_API_HASH not set'}), 500
+
+    # Delete invalid session if exists (unauthenticated)
+    session_path = TELETHON_SESSION + '.session'
+    if os.path.exists(session_path):
+        os.remove(session_path)
+
+    from telethon import TelegramClient
+
+    async def _send_code():
+        client = TelegramClient(TELETHON_SESSION, api_id, api_hash)
+        await client.connect()
+        result = await client.send_code_request(phone)
+        await client.disconnect()
+        return result.phone_code_hash
+
+    try:
+        phone_code_hash = _run_async_in_thread(_send_code())
+        _th_auth_state['phone'] = phone
+        _th_auth_state['phone_code_hash'] = phone_code_hash
+        return jsonify({'success': True, 'message': f'Код отправлен на {phone}'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/admin/thailand-auth-verify', methods=['POST'])
+def thailand_auth_verify():
+    global _th_auth_state
+    data_req = request.json or {}
+    password = data_req.get('password', '')
+    code = data_req.get('code', '').strip()
+    is_valid, _ = check_admin_password(password)
+    if not is_valid:
+        return jsonify({'error': 'Unauthorized'}), 401
+    if not code:
+        return jsonify({'error': 'Code required'}), 400
+    if not _th_auth_state.get('phone_code_hash'):
+        return jsonify({'error': 'Сначала запросите код (Шаг 1)'}), 400
+
+    api_id, api_hash = _get_telethon_creds()
+    phone = _th_auth_state['phone']
+    phone_code_hash = _th_auth_state['phone_code_hash']
+
+    from telethon import TelegramClient
+
+    async def _sign_in():
+        client = TelegramClient(TELETHON_SESSION, api_id, api_hash)
+        await client.connect()
+        await client.sign_in(phone, code, phone_code_hash=phone_code_hash)
+        me = await client.get_me()
+        await client.disconnect()
+        return me.first_name, me.username
+
+    try:
+        first_name, username = _run_async_in_thread(_sign_in())
+        _th_auth_state.clear()
+        return jsonify({'success': True, 'message': f'Авторизован как {first_name} (@{username})'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/admin/thailand-fetch-history', methods=['POST'])
+def thailand_fetch_history():
+    data_req = request.json or {}
+    password = data_req.get('password', '')
+    is_valid, _ = check_admin_password(password)
+    if not is_valid:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    session_path = TELETHON_SESSION + '.session'
+    if not os.path.exists(session_path):
+        return jsonify({'error': 'Сессия не найдена. Сначала авторизуйтесь через Шаг 1 и 2.'}), 400
+
+    # Verify it's an authenticated user session
+    api_id, api_hash = _get_telethon_creds()
+
+    async def _check_auth():
+        from telethon import TelegramClient
+        client = TelegramClient(TELETHON_SESSION, api_id, api_hash)
+        await client.connect()
+        authorized = await client.is_user_authorized()
+        await client.disconnect()
+        return authorized
+
+    try:
+        authorized = _run_async_in_thread(_check_auth())
+    except Exception:
+        authorized = False
+
+    if not authorized:
+        # Remove invalid session
+        if os.path.exists(session_path):
+            os.remove(session_path)
+        return jsonify({'error': 'Сессия не авторизована. Авторизуйтесь заново.'}), 400
+
+    def _run():
+        import asyncio
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(_fetch_history_telethon())
+        finally:
+            loop.close()
+
+    t = threading.Thread(target=_run, daemon=True, name='TelethonHistoryFetch')
+    t.start()
+    return jsonify({'success': True, 'message': 'Загрузка истории запущена в фоне. Следите за логами сервера.'})
+
+
+async def _fetch_history_telethon():
+    import asyncio
+    from telethon import TelegramClient
+    from telethon.tl.types import Message as TLMessage
+    from thailandparsing_parser import (
+        load_listings, get_existing_ids, save_listings,
+        is_spam, extract_price, detect_city, detect_listing_type,
+        extract_title_th, extract_source, SOURCE_CHANNEL
+    )
+    from datetime import timezone
+
+    api_id, api_hash = _get_telethon_creds()
+    client = TelegramClient(TELETHON_SESSION, api_id, api_hash)
+
+    try:
+        await client.connect()
+        if not await client.is_user_authorized():
+            logger.error('[TH Telethon] Session not authorized!')
+            return
+
+        me = await client.get_me()
+        logger.info(f'[TH Telethon] Connected as {me.first_name} (@{me.username})')
+
+        data = load_listings()
+        existing_ids = get_existing_ids(data)
+        if 'real_estate' not in data:
+            data['real_estate'] = []
+
+        existing_nums = set()
+        for eid in existing_ids:
+            if eid.startswith('thailand_'):
+                try:
+                    existing_nums.add(int(eid.split('_')[1]))
+                except ValueError:
+                    pass
+
+        new_count = 0
+        offset_id = 0
+        batch_size = 200
+
+        while True:
+            batch = await client.get_messages(SOURCE_CHANNEL, limit=batch_size, offset_id=offset_id)
+            if not batch:
+                break
+            real_msgs = [m for m in batch if isinstance(m, TLMessage)]
+            if not real_msgs:
+                break
+
+            for msg in real_msgs:
+                if msg.id in existing_nums:
+                    continue
+                text = msg.text or msg.caption or ''
+                if not text or len(text) < 20 or is_spam(text):
+                    continue
+
+                item_id = f'thailand_{msg.id}'
+                price_val, price_display = extract_price(text)
+                city = detect_city(text)
+                listing_type = detect_listing_type(text)
+                title = extract_title_th(text)
+                source = extract_source(text)
+                telegram_link = f'https://t.me/{SOURCE_CHANNEL}/{msg.id}'
+                tg_m = re.search(r'https?://t\.me/\S+', text)
+                if tg_m:
+                    telegram_link = tg_m.group(0)
+                date_str = msg.date.astimezone(timezone.utc).isoformat() if msg.date else datetime.now(timezone.utc).isoformat()
+
+                item = {
+                    'id': item_id,
+                    'title': title,
+                    'description': text[:500],
+                    'text': text,
+                    'price': price_val,
+                    'price_display': price_display,
+                    'city': city,
+                    'listing_type': listing_type,
+                    'contact': source,
+                    'telegram_link': telegram_link,
+                    'photos': [],
+                    'image_url': '',
+                    'all_images': [],
+                    'date': date_str,
+                    'source': 'telegram',
+                    'channel': SOURCE_CHANNEL,
+                }
+                data['real_estate'].append(item)
+                existing_nums.add(msg.id)
+                existing_ids.add(item_id)
+                new_count += 1
+
+            oldest = min(m.id for m in real_msgs)
+            logger.info(f'[TH Telethon] Batch: {len(real_msgs)} msgs, oldest_id={oldest}, new={new_count}')
+            offset_id = oldest
+            if len(batch) < batch_size:
+                break
+            await asyncio.sleep(0.5)
+
+        data['real_estate'].sort(key=lambda x: x.get('date', ''), reverse=True)
+        save_listings(data)
+        logger.info(f'[TH Telethon] Done. Added {new_count} new listings. Total: {len(data["real_estate"])}')
+
+    except Exception as e:
+        logger.error(f'[TH Telethon] Error: {e}', exc_info=True)
+    finally:
+        await client.disconnect()
 
 
 def _start_vietnamparsing_parser():

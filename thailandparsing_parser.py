@@ -360,6 +360,134 @@ def process_thailand_update(update: dict) -> dict | None:
     }
 
 
+def _clean_html(html_str: str) -> str:
+    """Strip HTML tags and decode entities."""
+    text = re.sub(r'<br\s*/?>', '\n', html_str, flags=re.IGNORECASE)
+    text = re.sub(r'<[^>]+>', '', text)
+    text = hlib.unescape(text)
+    return text.strip()
+
+
+def scrape_thailand_page(before_id: int = None) -> list:
+    """Scrape one page from t.me/s/thailandparsing public viewer."""
+    url = f'https://t.me/s/{SOURCE_CHANNEL}'
+    if before_id:
+        url += f'?before={before_id}'
+    try:
+        import requests as req
+        resp = req.get(url, timeout=15, headers={'User-Agent': 'Mozilla/5.0 (compatible; Python/3.11 parser)'})
+        resp.raise_for_status()
+        page = resp.text
+    except Exception as e:
+        logger.error(f'[TH scrape] Failed {url}: {e}')
+        return []
+
+    results = []
+    blocks = re.split(r'(?=<div class="tgme_widget_message_wrap)', page)
+    for block in blocks[1:]:
+        post_id_m = re.search(rf'data-post="{SOURCE_CHANNEL}/(\d+)"', block, re.IGNORECASE)
+        if not post_id_m:
+            continue
+        post_id = int(post_id_m.group(1))
+        date_m = re.search(r'datetime="([^"]+)"', block)
+        date_str = date_m.group(1) if date_m else datetime.now(timezone.utc).isoformat()
+        text_m = re.search(r'class="tgme_widget_message_text[^"]*"[^>]*>(.*?)</div>', block, re.DOTALL)
+        text = _clean_html(text_m.group(1)) if text_m else ''
+        imgs = re.findall(r"background-image:url\('(https://cdn[^']+)'\)", block)
+        imgs = list(dict.fromkeys(imgs))
+        results.append({'post_id': post_id, 'date': date_str, 'text': text, 'images': imgs})
+    return results
+
+
+def build_listing_from_scraped(msg: dict) -> dict | None:
+    """Build a listing dict from a scraped Thailand page message."""
+    text = msg.get('text', '')
+    if not text or len(text) < 20:
+        return None
+    if is_spam(text):
+        return None
+
+    post_id = msg['post_id']
+    item_id = f'thailand_{post_id}'
+    price_val, price_display = extract_price(text)
+    city = detect_city(text)
+    listing_type = detect_listing_type(text)
+    title = extract_title_th(text)
+    source = extract_source(text)
+    photos = msg.get('images', [])
+    telegram_link = f'https://t.me/{SOURCE_CHANNEL}/{post_id}'
+
+    return {
+        'id': item_id,
+        'title': title,
+        'description': text[:500],
+        'text': text,
+        'price': price_val,
+        'price_display': price_display,
+        'city': city,
+        'listing_type': listing_type,
+        'contact': source,
+        'telegram_link': telegram_link,
+        'photos': photos,
+        'image_url': photos[0] if photos else '',
+        'all_images': photos,
+        'date': msg.get('date', datetime.now(timezone.utc).isoformat()),
+        'source': 'telegram',
+        'channel': SOURCE_CHANNEL,
+    }
+
+
+def fetch_all_thailand(max_pages: int = 60) -> int:
+    """Scrape ALL available posts from t.me/s/thailandparsing and save to JSON."""
+    logger.info(f'[TH] Starting full fetch from t.me/s/{SOURCE_CHANNEL} (max {max_pages} pages)...')
+    data = load_listings()
+    existing_ids = get_existing_ids(data)
+    if 'real_estate' not in data:
+        data['real_estate'] = []
+
+    all_msgs = []
+    before_id = None
+    pages = 0
+
+    while pages < max_pages:
+        page_msgs = scrape_thailand_page(before_id=before_id)
+        if not page_msgs:
+            break
+        all_msgs.extend(page_msgs)
+        pages += 1
+        oldest = min(m['post_id'] for m in page_msgs)
+        before_id = oldest
+        logger.info(f'[TH] Page {pages}: got {len(page_msgs)} posts (oldest id: {oldest})')
+        if len(page_msgs) < 3:
+            break
+        time.sleep(1.2)
+
+    logger.info(f'[TH] Scraped {len(all_msgs)} posts across {pages} pages. Processing...')
+
+    new_count = 0
+    # Process newest-first (all_msgs is newest-first already)
+    for msg in all_msgs:
+        item = build_listing_from_scraped(msg)
+        if not item:
+            continue
+        if item['id'] in existing_ids:
+            continue
+        data['real_estate'].insert(0, item)
+        existing_ids.add(item['id'])
+        new_count += 1
+
+    if new_count > 0:
+        save_listings(data)
+
+    # Sort all by date descending
+    data = load_listings()
+    data['real_estate'].sort(key=lambda x: x.get('date', ''), reverse=True)
+    save_listings(data)
+
+    logger.info(f'[TH] Full fetch complete. Added {new_count} new listings. Total: {len(data.get("real_estate", []))}')
+    return new_count
+
+
 def add_thailand_listings(updates: list) -> int:
     if not updates:
         return 0
