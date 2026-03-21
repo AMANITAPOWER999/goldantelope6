@@ -230,7 +230,7 @@ def index():
 def _translate_via_mymemory(text: str, target_lang: str) -> str:
     """Translate a single text using MyMemory API (free, no key needed)."""
     try:
-        lang_map = {'en': 'en', 'vi': 'vi', 'ru': 'ru'}
+        lang_map = {'en': 'en', 'vi': 'vi', 'ru': 'ru', 'th': 'th'}
         tgt = lang_map.get(target_lang, 'en')
         r = requests.get(
             'https://api.mymemory.translated.net/get',
@@ -251,7 +251,7 @@ def _translate_via_lingva(text: str, target_lang: str) -> str:
     """Translate a single text using Lingva (Google Translate proxy, free)."""
     try:
         import urllib.parse
-        lang_map = {'en': 'en', 'vi': 'vi', 'ru': 'ru'}
+        lang_map = {'en': 'en', 'vi': 'vi', 'ru': 'ru', 'th': 'th'}
         tgt = lang_map.get(target_lang, 'en')
         encoded = urllib.parse.quote(text[:1000])
         instances = [
