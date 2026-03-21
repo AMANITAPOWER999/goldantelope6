@@ -189,23 +189,26 @@ def extract_price(text: str):
     _per = r'(?:/\s*(?:month|mon|мес(?:яц)?|mo)\b)?'  # optional /month /мес suffix
 
     patterns = [
-        # Vietnamese dot-separated: 16.000.000 VND
-        (rf'(\d{{1,3}}(?:\.\d{{3}})+)\s*{_vnd}', 'VND'),
-        # Plain number + VND (including space-separated: 4 500 000 vnd)
-        (rf'([\d][\d\s.,]*?)\s*{_vnd}{_per}', 'VND'),
-        # Tỷ (billion VND)
+        # 1. Tỷ (billion VND) — highest priority multiplier
         (rf'([\d][\d.,]*)\s*{_ty_vi}', 'VND_TY'),
-        # Millions VND (any million word) + optional VND + optional /month
+        # 2. Millions with explicit word (млн/миллион/million/triệu) — before plain VND
+        #    This prevents utility costs like "16.000 vnd/m³" overriding "13 млн донг"
         (rf'([\d][\d.,]*)\s*{_mln_any}\s*{_vnd}?{_per}', 'VND_MLN'),
-        # USD
+        # 3. Unambiguous dot-million: 16.000.000 VND (must have 2+ dot-groups)
+        (rf'(\d{{1,3}}(?:\.\d{{3}}){{2,}})\s*{_vnd}', 'VND'),
+        # 4. Large plain number + VND (>= 6 digits = at least 100 000)
+        (rf'(\d[\d\s]*\d{{5,}})\s*{_vnd}{_per}', 'VND'),
+        # 5. USD
         (r'([\d][\d\s.,]*)\s*(?:USD|usd|\$|доллар)', 'USD'),
         (r'\$\s*([\d][\d\s.,]*)', 'USD'),
-        # EUR
+        # 6. EUR
         (r'([\d][\d\s.,]*)\s*(?:EUR|eur|€|евро)', 'EUR'),
         (r'€\s*([\d][\d\s.,]*)', 'EUR'),
-        # Number with /month or /мес without currency → assume VND
+        # 7. Any plain number + VND (fallback, lower priority)
+        (rf'([\d][\d\s.,]*?)\s*{_vnd}{_per}', 'VND'),
+        # 8. Large number with /month or /мес without currency → assume VND
         (rf'([\d][\d\s.,]{{4,}}){_per}', 'VND_GUESS'),
-        # Price keyword context
+        # 9. Price keyword context
         (rf'(?:price|цена|стоимость|giá)[^\d]{{0,10}}([\d][\d\s.,]*)\s*(?:{_vnd}|USD|usd|\$|EUR|€)?', 'AUTO'),
     ]
 
