@@ -8214,9 +8214,14 @@
                             </div>`;
                         }
 
-                        // Format description with bold labels and link from "OBJECT"
-                        // Сначала экранируем HTML чтобы избежать XSS и сломанной разметки
-                        let descText = escapeHtml((item.description || item.text || '').substring(0, 500));
+                        // Format description: move Источник/Ссылка lines to the end
+                        const _rawDesc = (item.description || item.text || '');
+                        const _metaRe = /^(источник|ссылка|link|source)\s*:/i;
+                        const _descLines = _rawDesc.split('\n');
+                        const _mainLines = _descLines.filter(l => !_metaRe.test(l.trim()));
+                        const _metaLines = _descLines.filter(l => _metaRe.test(l.trim()));
+                        const _reordered = [..._mainLines, ..._metaLines].join('\n').trim();
+                        let descText = escapeHtml(_reordered.substring(0, 600));
                         descText = descText
                             .replace(/(ОБЪЕКТ:|Объект:)/g, tgLink ? `<a href="${tgLink}" target="_blank" style="color:inherit; font-weight:bold; text-decoration:underline;">$1</a>` : '<b>$1</b>')
                             .replace(/(Цена:|ЦЕНА:)/g, '<b>$1</b>')

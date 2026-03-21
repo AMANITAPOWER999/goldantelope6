@@ -317,7 +317,7 @@ def extract_telegram_link_from_text(text: str) -> str:
 
 SKIP_LINE_PREFIXES = re.compile(
     r'^(?:источник|source|описание|цена|price|адрес|address|тип|type|город|city|available|'
-    r'расположение|location|контакт|contact|telegram|whatsapp|https?://)',
+    r'расположение|location|контакт|contact|telegram|whatsapp|ссылка|link|https?://)',
     re.IGNORECASE
 )
 
