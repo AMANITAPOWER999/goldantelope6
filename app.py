@@ -296,10 +296,10 @@ def translate_text():
     if not texts:
         return jsonify({'translations': []})
 
-    texts = texts[:40]
+    texts = texts[:30]
     from concurrent.futures import ThreadPoolExecutor, as_completed
     results = [None] * len(texts)
-    with ThreadPoolExecutor(max_workers=min(20, len(texts))) as executor:
+    with ThreadPoolExecutor(max_workers=min(30, len(texts))) as executor:
         future_to_idx = {executor.submit(_translate_one, t, target_lang): i for i, t in enumerate(texts)}
         for future in as_completed(future_to_idx):
             idx = future_to_idx[future]

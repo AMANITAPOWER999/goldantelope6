@@ -5660,36 +5660,42 @@
         async function translateVisibleCards(lang = currentLang) {
             if (lang === 'ru') return;
 
-            // Collect all h3 title elements from visible grids
-            // Cards can have class "card" (real estate) or "listing-card" (other sections)
-            const titleElements = [];
-            document.querySelectorAll('.listing-grid').forEach(grid => {
-                if (grid.offsetParent === null && !grid.closest('.content.active')) return;
-                grid.querySelectorAll('.card, .listing-card').forEach(c => {
-                    const h3 = c.querySelector('h3');
-                    if (!h3 || !h3.textContent.trim()) return;
-                    // If h3 has an <a> child, translate the anchor text (preserves the link)
-                    const textEl = h3.querySelector('a') || h3;
-                    titleElements.push(textEl);
-                });
-            });
-
-            if (titleElements.length === 0) return;
-
+            // Collect translatable elements from all visible grids
+            // Cards: .card (real estate) or .listing-card (other sections)
+            // For each card: title = h3 or h3>a, description = h3.nextElementSibling (div or p)
             const toTranslate = [];
             const elems = [];
 
-            titleElements.slice(0, 20).forEach(textEl => {
-                const originalText = textEl.getAttribute('data-original') || textEl.textContent.trim();
-                if (!originalText) return;
-                textEl.setAttribute('data-original', originalText);
-                const cacheKey = `${originalText.substring(0, 100)}:${lang}`;
+            const addElem = (el, maxLen) => {
+                if (!el) return;
+                const original = el.getAttribute('data-orig') || el.textContent.trim();
+                if (!original || original.length < 3) return;
+                el.setAttribute('data-orig', original);
+                const cacheKey = `${original.substring(0, 120)}:${lang}`;
                 if (translationCache[cacheKey]) {
-                    textEl.textContent = translationCache[cacheKey];
-                } else {
-                    toTranslate.push(originalText.substring(0, 400));
-                    elems.push({ el: textEl, original: originalText });
+                    el.textContent = translationCache[cacheKey];
+                    return;
                 }
+                toTranslate.push(original.substring(0, maxLen));
+                elems.push({ el, original });
+            };
+
+            let cardCount = 0;
+            document.querySelectorAll('.listing-grid').forEach(grid => {
+                if (grid.offsetParent === null && !grid.closest('.content.active')) return;
+                grid.querySelectorAll('.card, .listing-card').forEach(c => {
+                    if (cardCount >= 15) return;
+                    const h3 = c.querySelector('h3');
+                    if (!h3) return;
+                    // Title: prefer <a> inside h3 to keep href intact
+                    addElem(h3.querySelector('a') || h3, 350);
+                    // Description: next sibling element after h3 (div or p)
+                    const descEl = h3.nextElementSibling;
+                    if (descEl && !descEl.querySelector('input,button,select')) {
+                        addElem(descEl, 500);
+                    }
+                    cardCount++;
+                });
             });
 
             if (toTranslate.length === 0) return;
@@ -5705,7 +5711,7 @@
                     data.translations.forEach((translated, idx) => {
                         if (!elems[idx] || !translated || translated === elems[idx].original) return;
                         elems[idx].el.textContent = translated;
-                        translationCache[`${elems[idx].original.substring(0, 100)}:${lang}`] = translated;
+                        translationCache[`${elems[idx].original.substring(0, 120)}:${lang}`] = translated;
                     });
                 }
             } catch (e) {
