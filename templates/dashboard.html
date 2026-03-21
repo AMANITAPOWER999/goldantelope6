@@ -8110,7 +8110,7 @@
                                                                 <span style="font-size:16px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.7);">${item.listing_type === 'rent' ? '🔑 Аренда' : '🏠 Продажа'}</span>
                                                                 ${item.area ? `<span style="font-size:16px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.7);">📐 ${item.area}m²</span>` : ''}
                                                                 ${item.rooms ? `<span style="font-size:16px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.7);">🛏 ${item.rooms} комн.</span>` : ''}
-                                                                ${item.price ? `<span style="font-size:16px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.7);background:rgba(0,0,0,0.6);padding:4px 10px;border-radius:6px;font-weight:bold;">💰 ${item.price}</span>` : ''}
+                                                                ${item.price ? `<span style="font-size:16px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.7);background:rgba(0,0,0,0.6);padding:4px 10px;border-radius:6px;font-weight:bold;">💰 ${item.price_display || item.price}</span>` : ''}
                                                             </div>`
                                                             : (category === 'money_exchange' || category === 'exchange'
                                                                 ? `<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
