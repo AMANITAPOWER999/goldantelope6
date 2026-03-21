@@ -5660,62 +5660,69 @@
         async function translateVisibleCards(lang = currentLang) {
             if (lang === 'ru') return;
 
-            // Collect translatable elements from all visible grids
+            // Collect ALL translatable elements from all visible grids (no card limit)
             // Cards: .card (real estate) or .listing-card (other sections)
             // For each card: title = h3 or h3>a, description = h3.nextElementSibling (div or p)
-            const toTranslate = [];
-            const elems = [];
+            const allElems = [];
 
-            const addElem = (el, maxLen) => {
-                if (!el) return;
+            document.querySelectorAll('.listing-grid').forEach(grid => {
+                if (grid.offsetParent === null && !grid.closest('.content.active')) return;
+                grid.querySelectorAll('.card, .listing-card').forEach(c => {
+                    const h3 = c.querySelector('h3');
+                    if (!h3) return;
+                    // Title: prefer <a> inside h3 to keep href intact
+                    const titleEl = h3.querySelector('a') || h3;
+                    allElems.push({ el: titleEl, maxLen: 350 });
+                    // Description: next sibling element after h3 (div or p)
+                    const descEl = h3.nextElementSibling;
+                    if (descEl && !descEl.querySelector('input,button,select')) {
+                        allElems.push({ el: descEl, maxLen: 500 });
+                    }
+                });
+            });
+
+            if (allElems.length === 0) return;
+
+            // Apply cache immediately, collect what still needs translating
+            const pending = [];
+            allElems.forEach(({ el, maxLen }) => {
                 const original = el.getAttribute('data-orig') || el.textContent.trim();
                 if (!original || original.length < 3) return;
                 el.setAttribute('data-orig', original);
                 const cacheKey = `${original.substring(0, 120)}:${lang}`;
                 if (translationCache[cacheKey]) {
                     el.textContent = translationCache[cacheKey];
-                    return;
+                } else {
+                    pending.push({ el, original, maxLen });
                 }
-                toTranslate.push(original.substring(0, maxLen));
-                elems.push({ el, original });
-            };
-
-            let cardCount = 0;
-            document.querySelectorAll('.listing-grid').forEach(grid => {
-                if (grid.offsetParent === null && !grid.closest('.content.active')) return;
-                grid.querySelectorAll('.card, .listing-card').forEach(c => {
-                    if (cardCount >= 15) return;
-                    const h3 = c.querySelector('h3');
-                    if (!h3) return;
-                    // Title: prefer <a> inside h3 to keep href intact
-                    addElem(h3.querySelector('a') || h3, 350);
-                    // Description: next sibling element after h3 (div or p)
-                    const descEl = h3.nextElementSibling;
-                    if (descEl && !descEl.querySelector('input,button,select')) {
-                        addElem(descEl, 500);
-                    }
-                    cardCount++;
-                });
             });
 
-            if (toTranslate.length === 0) return;
+            if (pending.length === 0) return;
 
-            try {
-                const resp = await fetch('/api/translate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ texts: toTranslate, lang })
-                });
-                if (resp.ok) {
-                    const data = await resp.json();
-                    data.translations.forEach((translated, idx) => {
-                        if (!elems[idx] || !translated || translated === elems[idx].original) return;
-                        elems[idx].el.textContent = translated;
-                        translationCache[`${elems[idx].original.substring(0, 120)}:${lang}`] = translated;
+            // Translate in batches of 30 texts to avoid rate limits
+            const BATCH = 30;
+            for (let i = 0; i < pending.length; i += BATCH) {
+                const batch = pending.slice(i, i + BATCH);
+                const texts = batch.map(item => item.original.substring(0, item.maxLen));
+                try {
+                    const resp = await fetch('/api/translate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ texts, lang })
                     });
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        data.translations.forEach((translated, idx) => {
+                            if (!batch[idx] || !translated || translated === batch[idx].original) return;
+                            batch[idx].el.textContent = translated;
+                            translationCache[`${batch[idx].original.substring(0, 120)}:${lang}`] = translated;
+                        });
+                    }
+                } catch (e) {
+                    console.log('[translate] batch error:', e);
                 }
-            } catch (e) {
-                console.log('[translate] error:', e);
+                // Small pause between batches to be kind to the translation API
+                if (i + BATCH < pending.length) await new Promise(r => setTimeout(r, 300));
             }
         }
         
