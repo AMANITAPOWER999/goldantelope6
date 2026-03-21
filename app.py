@@ -3842,6 +3842,132 @@ def thailand_fetch_history():
     return jsonify({'success': True, 'message': 'Загрузка истории запущена в фоне. Следите за логами сервера.'})
 
 
+@app.route('/api/admin/thailand-fetch-photos', methods=['POST'])
+def thailand_fetch_photos():
+    data_req = request.json or {}
+    password = data_req.get('password', '')
+    is_valid, _ = check_admin_password(password)
+    if not is_valid:
+        return jsonify({'error': 'Unauthorized'}), 401
+
+    session_path = TELETHON_SESSION + '.session'
+    if not os.path.exists(session_path):
+        return jsonify({'error': 'Нет сессии. Авторизуйтесь сначала.'}), 400
+
+    def _run():
+        import asyncio
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            loop.run_until_complete(_download_photos_telethon())
+        finally:
+            loop.close()
+
+    t = threading.Thread(target=_run, daemon=True, name='TelethonPhotoFetch')
+    t.start()
+    return jsonify({'success': True, 'message': 'Загрузка фото запущена в фоне.'})
+
+
+async def _download_photos_telethon():
+    """
+    Fetch Telegram CDN photo URLs for Thailand listings by scraping og:image
+    from source channel posts referenced in listing texts.
+    No files are downloaded — only Telegram CDN URLs are stored.
+    """
+    import asyncio
+    import time
+    import requests as req
+    import re as re_mod
+    from thailandparsing_parser import load_listings, save_listings
+
+    TG_URL_RE = re_mod.compile(r'https?://t\.me/([^/\s]+)/(\d+)')
+    OG_IMG_RE = re_mod.compile(
+        r'<meta\s+property=["\']og:image["\']\s+content=["\'](.*?)["\']', re_mod.IGNORECASE
+    )
+    HEADS = {'User-Agent': 'Mozilla/5.0 (compatible; TelegramBot/1.0)'}
+
+    def scrape_og_image(channel: str, post_id: str) -> str | None:
+        try:
+            r = req.get(f'https://t.me/{channel}/{post_id}', headers=HEADS, timeout=10)
+            if r.status_code != 200:
+                return None
+            m = OG_IMG_RE.search(r.text)
+            if m:
+                url = m.group(1).strip()
+                if url and ('cdn' in url or 'telesco.pe' in url):
+                    return url
+        except Exception:
+            pass
+        return None
+
+    def cleanup_local_files():
+        photos_dir = 'static/images/thailand'
+        if not os.path.isdir(photos_dir):
+            return
+        for fname in os.listdir(photos_dir):
+            if fname.endswith('.jpg'):
+                try:
+                    os.remove(os.path.join(photos_dir, fname))
+                except Exception:
+                    pass
+
+    try:
+        data = load_listings()
+        items = data.get('real_estate', [])
+
+        # Clear stale local /static/ URLs and remove local files
+        for item in items:
+            url = item.get('image_url', '')
+            if url and url.startswith('/static/images/thailand/'):
+                item['image_url'] = ''
+                item['photos'] = []
+                item['all_images'] = []
+        cleanup_local_files()
+
+        # Collect items needing photo URL from source channel link
+        need_photos = [
+            item for item in items
+            if not item.get('image_url')
+            and TG_URL_RE.search(item.get('text', ''))
+        ]
+        logger.info(f'[TH Photos] Scraping og:image for {len(need_photos)} listings')
+
+        photo_count = 0
+        save_batch = 0
+
+        for item in need_photos:
+            text = item.get('text', '')
+            m = TG_URL_RE.search(text)
+            if not m:
+                continue
+            channel, post_id = m.group(1), m.group(2)
+
+            img_url = await asyncio.get_event_loop().run_in_executor(
+                None, scrape_og_image, channel, post_id
+            )
+            if img_url:
+                item['image_url'] = img_url
+                item['photos'] = [img_url]
+                item['all_images'] = [img_url]
+                photo_count += 1
+                save_batch += 1
+
+            if save_batch >= 50:
+                save_listings(data)
+                save_batch = 0
+                logger.info(f'[TH Photos] Saved. Photo URLs so far: {photo_count}')
+
+            await asyncio.sleep(0.3)
+
+        save_listings(data)
+        logger.info(f'[TH Photos] Done. Got {photo_count} Telegram CDN photo URLs.')
+        return photo_count
+
+    except Exception as e:
+        logger.error(f'[TH Photos] Error: {e}', exc_info=True)
+        return 0
+
+
 async def _fetch_history_telethon():
     import asyncio
     from telethon import TelegramClient

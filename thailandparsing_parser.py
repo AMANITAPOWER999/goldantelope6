@@ -109,6 +109,9 @@ def parse_number_from_str(s: str) -> float:
 
 
 def extract_price(text: str) -> tuple[int, str]:
+    # Strip URLs first so post IDs in t.me/channel/123456 aren't parsed as prices
+    text = re.sub(r'https?://\S+', '', text)
+    text = re.sub(r't\.me/\S+', '', text)
     text_upper = text.upper()
 
     # THB patterns first
