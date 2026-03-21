@@ -8271,7 +8271,7 @@
                                         </div>
                                         <div style="background: #fff3e0; padding: 8px; border-radius: 6px; text-align: center;">
                                             <div style="font-size: 11px; color: #888;">👤 Контакт</div>
-                                            <div style="font-size: 12px; font-weight: 600; color: #e65100;">${item.contact_name || '-'}</div>
+                                            <div style="font-size: 12px; font-weight: 600; color: #e65100;">${item.contact_name || item.contact || '-'}</div>
                                         </div>
                                     </div>
                                     <!-- Цена -->
@@ -8307,11 +8307,12 @@
                                         </a>` : `<div style="display: block; background: transparent; border: 2px solid #ccc; color: #999; padding: 10px; border-radius: 6px; text-align: center; font-weight: 600;">
                                             💬 WhatsApp
                                         </div>`}
-                                        ${item.telegram ? `<a href="https://t.me/${item.telegram.replace('@', '')}" target="_blank" style="display: block; background: transparent; border: 2px solid #0088cc; color: #0088cc; padding: 10px; border-radius: 6px; text-align: center; text-decoration: none; font-weight: 600;">
-                                            ✈️ Telegram
-                                        </a>` : `<div style="display: block; background: transparent; border: 2px solid #ccc; color: #999; padding: 10px; border-radius: 6px; text-align: center; font-weight: 600;">
-                                            ✈️ Telegram
-                                        </div>`}
+                                        ${(() => {
+                                            let tgHref = item.telegram_link || (item.telegram ? `https://t.me/${item.telegram.replace('@','')}` : '') || tgLink || '';
+                                            return tgHref
+                                                ? `<a href="${tgHref}" target="_blank" style="display: block; background: transparent; border: 2px solid #0088cc; color: #0088cc; padding: 10px; border-radius: 6px; text-align: center; text-decoration: none; font-weight: 600;">✈️ Telegram</a>`
+                                                : `<div style="display: block; background: transparent; border: 2px solid #ccc; color: #999; padding: 10px; border-radius: 6px; text-align: center; font-weight: 600;">✈️ Telegram</div>`;
+                                        })()}
                                     </div>
                                     ${category === 'restaurants' ? `
                                     <!-- Google Maps кнопка для ресторанов -->
@@ -8321,7 +8322,6 @@
                                     ` : ''}
                                     <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                                         ${item.external_link ? `<a href="${item.external_link}" target="_blank" style="flex: 1; min-width: 100px; display: inline-block; background: #d4af37; text-decoration: none; text-align: center; padding: 8px; border-radius: 6px; color: white; font-size: 12px; font-weight: 600;">🔗 Оригинал</a>` : ''}
-                                        ${tgLink ? `<a href="${tgLink}" target="_blank" class="btn tg-btn" style="flex: 1; min-width: 100px; display: inline-block; background: #0088cc; text-decoration: none; text-align: center; padding: 8px; border-radius: 6px; color: white; font-size: 12px; font-weight: 600;">✈️ Написать в Telegram</a>` : ''}
                                     </div>
                                     <div style="display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap;" data-listing-id="${item.id}">
                                         ${adminAuthenticated ? (category === 'kids' 
@@ -9366,8 +9366,14 @@
                 
                 let channelName = (item.source_channel || '').replace('@', '');
                 let tgLink = item.message_id && channelName ? `https://t.me/${channelName}/${item.message_id}` : null;
-                let tgUsername = item.telegram || channelName || '';
-                let tgContactLink = tgUsername ? `https://t.me/${tgUsername.replace('@','')}` : tgLink;
+                // Prefer telegram_link (direct post URL from "Ссылка:" in text)
+                let postLink = item.telegram_link || tgLink || '';
+                // Contact channel: from "Источник:" field
+                let contactSource = item.contact || item.contact_name || channelName || '';
+                // Contact channel URL (for writing/opening the channel)
+                let contactChannelUrl = contactSource && contactSource.startsWith('@')
+                    ? `https://t.me/${contactSource.replace('@', '')}`
+                    : (contactSource ? `https://t.me/${contactSource.replace('https://t.me/', '')}` : '');
                 
                 let contactHtml = `
                     <div style="text-align:center;">
@@ -9376,12 +9382,12 @@
                             <p style="margin:0 0 10px 0;font-size:14px;color:#555;">
                                 ${item.title || item.name || 'Объявление'}
                             </p>
-                            ${channelName ? `<p style="margin:0;font-size:13px;color:#666;">👤 ${channelName}</p>` : ''}
+                            ${contactSource ? `<p style="margin:0;font-size:13px;color:#666;">👤 Источник: <b>${contactSource}</b></p>` : ''}
                         </div>
                         <div style="display:flex;flex-direction:column;gap:10px;">
                             ${item.whatsapp ? `<a href="https://wa.me/${item.whatsapp.replace(/[^0-9]/g,'')}" target="_blank" style="display:block;background:#25D366;text-decoration:none;text-align:center;padding:12px;border-radius:8px;color:white;font-size:14px;font-weight:600;">💬 WhatsApp: ${item.whatsapp}</a>` : ''}
-                            ${tgContactLink ? `<a href="${tgContactLink}" target="_blank" style="display:block;background:#0088cc;text-decoration:none;text-align:center;padding:12px;border-radius:8px;color:white;font-size:14px;font-weight:600;">✈️ Telegram: @${tgUsername || channelName}</a>` : ''}
-                            ${tgLink && tgLink !== tgContactLink ? `<a href="${tgLink}" target="_blank" style="display:block;background:#d4af37;text-decoration:none;text-align:center;padding:12px;border-radius:8px;color:white;font-size:14px;font-weight:600;">📨 Оригинал сообщения</a>` : ''}
+                            ${contactChannelUrl ? `<a href="${contactChannelUrl}" target="_blank" style="display:block;background:#0088cc;text-decoration:none;text-align:center;padding:12px;border-radius:8px;color:white;font-size:14px;font-weight:600;">✈️ Написать в Telegram: ${contactSource}</a>` : ''}
+                            ${postLink ? `<a href="${postLink}" target="_blank" style="display:block;background:#d4af37;text-decoration:none;text-align:center;padding:12px;border-radius:8px;color:white;font-size:14px;font-weight:600;">🔗 Оригинал объявления</a>` : ''}
                         </div>
                         <button onclick="document.getElementById('contact-modal').style.display='none'" style="margin-top:20px;background:#eee;border:none;padding:10px 30px;border-radius:6px;cursor:pointer;font-size:14px;">Закрыть</button>
                     </div>

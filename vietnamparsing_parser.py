@@ -284,20 +284,32 @@ def is_spam(text: str) -> bool:
 
 
 def extract_source_from_text(text: str) -> str:
-    # Try to get @username from t.me URL
-    m = re.search(r'(?:источник|source)[:\s]*https?://t\.me/([\w]+)', text, re.IGNORECASE)
+    # Try to get @username from "Источник: @username" or "Источник: https://t.me/username"
+    m = re.search(r'(?:источник|source)[:\s]+https?://t\.me/([\w]+)', text, re.IGNORECASE)
     if m:
         return f"@{m.group(1)}"
-    # Try direct @username
-    m = re.search(r'(?:источник|source)[:\s]*(@[\w]+)', text, re.IGNORECASE)
+    m = re.search(r'(?:источник|source)[:\s]+(@[\w]+)', text, re.IGNORECASE)
     if m:
         return m.group(1)
-    # Any t.me URL in message
-    m = re.search(r'https?://t\.me/([\w]+)', text, re.IGNORECASE)
+    # Fallback: any t.me URL (channel name only, no message_id)
+    m = re.search(r'https?://t\.me/([\w]+)(?:/\d+)?', text, re.IGNORECASE)
     if m:
         return f"@{m.group(1)}"
-    # Full source line
+    # Full source line text
     m = re.search(r'^(?:источник|source)[:\s]*(.*?)$', text, re.IGNORECASE | re.MULTILINE)
+    if m:
+        return m.group(1).strip()
+    return ''
+
+
+def extract_telegram_link_from_text(text: str) -> str:
+    """Extract 'Ссылка: https://t.me/...' direct post URL from message text."""
+    # "Ссылка: https://t.me/channel/12345"
+    m = re.search(r'(?:ссылка|link)[:\s]+(https?://t\.me/[\w/]+)', text, re.IGNORECASE)
+    if m:
+        return m.group(1).strip()
+    # Any t.me URL with a message_id (channel/12345)
+    m = re.search(r'(https?://t\.me/[\w]+/\d+)', text, re.IGNORECASE)
     if m:
         return m.group(1).strip()
     return ''
@@ -435,6 +447,7 @@ def build_listing_item(msg: dict, item_id: str) -> dict | None:
     listing_type = detect_listing_type(text)
     title = extract_title(text)
     source = extract_source_from_text(text)
+    telegram_link = extract_telegram_link_from_text(text)
     images = msg.get('images', [])
 
     return {
@@ -448,6 +461,7 @@ def build_listing_item(msg: dict, item_id: str) -> dict | None:
         'price': price_vnd,
         'price_display': price_display or '',
         'contact': source or 'Контакт в описании',
+        'telegram_link': telegram_link or '',
         'source_group': f"@{SOURCE_CHANNEL}",
         'photos': images,
         'image_url': images[0] if images else None,
