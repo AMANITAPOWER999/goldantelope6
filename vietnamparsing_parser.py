@@ -542,6 +542,26 @@ def poll_bot_for_updates(last_update_id: int = 0) -> tuple[list, int]:
         return [], last_update_id
 
 
+def _scrape_cdn_photos_for_post(channel: str, post_id: int) -> list:
+    """Scrape permanent CDN photo URLs for a specific Telegram post from the public viewer."""
+    if not post_id:
+        return []
+    try:
+        headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36'}
+        r = requests.get(f"https://t.me/s/{channel}?before={post_id + 1}", headers=headers, timeout=10)
+        if r.status_code != 200:
+            return []
+        html = r.text
+        # Find the specific post block
+        pattern = rf'data-post="{channel}/{post_id}"(.*?)(?=data-post="{channel}/\d+"|\Z)'
+        block_m = re.search(pattern, html, re.DOTALL | re.IGNORECASE)
+        block = block_m.group(0) if block_m else html
+        imgs = re.findall(r"background-image:url\('(https://cdn[^']+)'\)", block)
+        return list(dict.fromkeys(imgs))
+    except Exception:
+        return []
+
+
 def _resolve_file_url(file_id: str) -> str:
     """Resolve a Telegram file_id to a direct download URL."""
     if not file_id or not BOT_TOKEN:
@@ -591,8 +611,14 @@ def process_bot_update(update: dict, override_photos: list | None = None) -> dic
     if override_photos is not None:
         photos = override_photos
     else:
-        url = _extract_largest_photo_url(post)
-        photos = [url] if url else []
+        # Prefer permanent CDN URLs from telesco.pe viewer
+        cdn_photos = _scrape_cdn_photos_for_post(SOURCE_CHANNEL, msg_id)
+        if cdn_photos:
+            photos = cdn_photos
+        else:
+            # Fallback: temporary Bot API URL (if post is very new and not yet visible on viewer)
+            url = _extract_largest_photo_url(post)
+            photos = [url] if url else []
 
     fwd = post.get('forward_from_chat', {})
     fwd_name = ''
@@ -682,20 +708,27 @@ def _group_media_updates(updates: list) -> tuple[list, list]:
         else:
             singles.append((upd, None))
 
-    # Build override_photos for each media group
+    # Build override_photos for each media group using permanent CDN URLs
     vietnam_items = list(singles)
     for mgid, grp in media_groups.items():
-        # Sort group messages by message_id to keep photo order
         grp['all_updates'].sort(
             key=lambda u: (u.get('channel_post') or u.get('message') or {}).get('message_id', 0)
         )
-        all_photos = []
-        for upd in grp['all_updates']:
-            post = upd.get('channel_post') or upd.get('message') or {}
-            url = _extract_largest_photo_url(post)
-            if url and url not in all_photos:
-                all_photos.append(url)
-        vietnam_items.append((grp['main'], all_photos if all_photos else None))
+        main_post = grp['main'].get('channel_post') or grp['main'].get('message') or {}
+        main_msg_id = main_post.get('message_id', 0)
+        # Try to get permanent CDN URLs from telesco.pe viewer
+        cdn_photos = _scrape_cdn_photos_for_post(SOURCE_CHANNEL, main_msg_id)
+        if cdn_photos:
+            vietnam_items.append((grp['main'], cdn_photos))
+        else:
+            # Fallback to temporary Bot API URLs (will be fixed in next re-scrape pass)
+            all_photos = []
+            for upd in grp['all_updates']:
+                post = upd.get('channel_post') or upd.get('message') or {}
+                url = _extract_largest_photo_url(post)
+                if url and url not in all_photos:
+                    all_photos.append(url)
+            vietnam_items.append((grp['main'], all_photos if all_photos else None))
 
     return vietnam_items, thailand_updates
 
