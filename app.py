@@ -273,15 +273,16 @@ def _translate_via_lingva(text: str, target_lang: str) -> str:
 
 
 def _translate_one(text: str, target_lang: str) -> str:
-    """Translate one text, with cache check and dual-provider fallback."""
+    """Translate one text, with cache check. MyMemory first (fast), Lingva fallback."""
     if not text or not text.strip():
         return text
     cache_key = hashlib.md5(f"{text}:{target_lang}".encode()).hexdigest()
     if cache_key in translation_cache:
         return translation_cache[cache_key]
-    translated = _translate_via_lingva(text, target_lang)
+    # MyMemory is ~0.7s vs Lingva ~4.5s — use MyMemory first
+    translated = _translate_via_mymemory(text, target_lang)
     if translated == text:
-        translated = _translate_via_mymemory(text, target_lang)
+        translated = _translate_via_lingva(text, target_lang)
     translation_cache[cache_key] = translated
     return translated
 
@@ -298,7 +299,7 @@ def translate_text():
     texts = texts[:40]
     from concurrent.futures import ThreadPoolExecutor, as_completed
     results = [None] * len(texts)
-    with ThreadPoolExecutor(max_workers=8) as executor:
+    with ThreadPoolExecutor(max_workers=min(20, len(texts))) as executor:
         future_to_idx = {executor.submit(_translate_one, t, target_lang): i for i, t in enumerate(texts)}
         for future in as_completed(future_to_idx):
             idx = future_to_idx[future]

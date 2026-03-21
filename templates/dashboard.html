@@ -5660,92 +5660,56 @@
         async function translateVisibleCards(lang = currentLang) {
             if (lang === 'ru') return;
 
-            // Search all visible listing grids on the page
-            let cards = [];
-            document.querySelectorAll('.listing-grid, [id$="-grid"]').forEach(grid => {
-                // Skip hidden grids
+            // Collect all h3 title elements from visible grids
+            // Cards can have class "card" (real estate) or "listing-card" (other sections)
+            const titleElements = [];
+            document.querySelectorAll('.listing-grid').forEach(grid => {
                 if (grid.offsetParent === null && !grid.closest('.content.active')) return;
-                grid.querySelectorAll('.listing-card').forEach(c => {
+                grid.querySelectorAll('.card, .listing-card').forEach(c => {
                     const h3 = c.querySelector('h3');
-                    const p = c.querySelector('p');
-                    if (h3 && p && h3.textContent.trim()) cards.push(c);
+                    if (!h3 || !h3.textContent.trim()) return;
+                    // If h3 has an <a> child, translate the anchor text (preserves the link)
+                    const textEl = h3.querySelector('a') || h3;
+                    titleElements.push(textEl);
                 });
             });
 
-            if (cards.length === 0) return;
-            
-            // Ограничиваем до 30 карточек для скорости
-            cards = cards.slice(0, 30);
-            
-            const textsToTranslate = [];
-            const cardElements = [];
-            
-            cards.forEach(card => {
-                // Переводим заголовок h3
-                const titleEl = card.querySelector('h3');
-                if (titleEl && titleEl.textContent.trim()) {
-                    const originalText = titleEl.getAttribute('data-original') || titleEl.textContent;
-                    titleEl.setAttribute('data-original', originalText);
-                    const cacheKey = `${originalText.substring(0,100)}:${lang}`;
-                    if (translationCache[cacheKey]) {
-                        titleEl.textContent = translationCache[cacheKey];
-                    } else {
-                        textsToTranslate.push(originalText.substring(0, 300));
-                        cardElements.push({el: titleEl, original: originalText});
-                    }
-                }
-                
-                // Переводим описание p (только .card-info p или прямой p в card)
-                const descEl = card.querySelector('.card-info p') || card.querySelector('p');
-                if (descEl && descEl.textContent.trim() && descEl.textContent.length > 20) {
-                    const originalText = descEl.getAttribute('data-original') || descEl.textContent;
-                    descEl.setAttribute('data-original', originalText);
-                    const cacheKey = `${originalText.substring(0,100)}:${lang}`;
-                    if (translationCache[cacheKey]) {
-                        descEl.textContent = translationCache[cacheKey];
-                    } else {
-                        textsToTranslate.push(originalText.substring(0, 500));
-                        cardElements.push({el: descEl, original: originalText});
-                    }
+            if (titleElements.length === 0) return;
+
+            const toTranslate = [];
+            const elems = [];
+
+            titleElements.slice(0, 20).forEach(textEl => {
+                const originalText = textEl.getAttribute('data-original') || textEl.textContent.trim();
+                if (!originalText) return;
+                textEl.setAttribute('data-original', originalText);
+                const cacheKey = `${originalText.substring(0, 100)}:${lang}`;
+                if (translationCache[cacheKey]) {
+                    textEl.textContent = translationCache[cacheKey];
+                } else {
+                    toTranslate.push(originalText.substring(0, 400));
+                    elems.push({ el: textEl, original: originalText });
                 }
             });
-            
-            console.log('Texts to translate:', textsToTranslate.length);
-            if (textsToTranslate.length === 0) {
-                console.log('All texts cached, skipping API call');
-                return;
-            }
-            
-            const batchSize = 20;
-            for (let i = 0; i < textsToTranslate.length; i += batchSize) {
-                const batch = textsToTranslate.slice(i, i + batchSize);
-                const batchCards = cardElements.slice(i, i + batchSize);
-                
-                try {
-                    console.log('Sending batch for translation:', batch.length);
-                    const response = await fetch('/api/translate', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({texts: batch, lang: lang})
+
+            if (toTranslate.length === 0) return;
+
+            try {
+                const resp = await fetch('/api/translate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ texts: toTranslate, lang })
+                });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    data.translations.forEach((translated, idx) => {
+                        if (!elems[idx] || !translated || translated === elems[idx].original) return;
+                        elems[idx].el.textContent = translated;
+                        translationCache[`${elems[idx].original.substring(0, 100)}:${lang}`] = translated;
                     });
-                    
-                    console.log('Translate API response status:', response.status);
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log('Got translations:', data.translations?.length);
-                        data.translations.forEach((translated, idx) => {
-                            if (batchCards[idx]) {
-                                batchCards[idx].el.textContent = translated;
-                                const cacheKey = `${batchCards[idx].original.substring(0,100)}:${lang}`;
-                                translationCache[cacheKey] = translated;
-                            }
-                        });
-                    } else {
-                        console.log('Translation failed:', response.status, await response.text());
-                    }
-                } catch (e) {
-                    console.log('Translation error:', e);
                 }
+            } catch (e) {
+                console.log('[translate] error:', e);
             }
         }
         
