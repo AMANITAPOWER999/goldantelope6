@@ -3893,7 +3893,7 @@ async def _fetch_history_telethon():
             for msg in real_msgs:
                 if msg.id in existing_nums:
                     continue
-                text = msg.text or msg.caption or ''
+                text = (msg.text or msg.message or '') if hasattr(msg, 'text') else ''
                 if not text or len(text) < 20 or is_spam(text):
                     continue
 
