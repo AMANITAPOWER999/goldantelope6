@@ -342,7 +342,7 @@ def is_spam(text: str) -> bool:
 
 
 def is_blocked_source(text: str) -> bool:
-    """Returns True if the listing comes from a blocked channel."""
+    """Returns True if the listing comes from a blocked channel — skip entirely."""
     text_lower = text.lower()
     for src in BLOCKED_SOURCES:
         if src in text_lower:
@@ -508,6 +508,8 @@ def build_listing_item(msg: dict, item_id: str) -> dict | None:
     text = msg.get('text', '')
     if is_spam(text):
         return None
+    if is_blocked_source(text):
+        return None  # completely skip blocked channels
 
     price_vnd, price_display = extract_price(text)
     city = detect_city(text)
@@ -516,7 +518,6 @@ def build_listing_item(msg: dict, item_id: str) -> dict | None:
     source = extract_source_from_text(text)
     telegram_link = extract_telegram_link_from_text(text)
     images = msg.get('images', [])
-    hidden = is_blocked_source(text)
 
     return {
         'id': item_id,
@@ -540,7 +541,6 @@ def build_listing_item(msg: dict, item_id: str) -> dict | None:
         'country': 'vietnam',
         'message_id': msg['post_id'],
         'has_media': bool(images),
-        'hidden': hidden,
     }
 
 

@@ -47,37 +47,60 @@ def set_menu_button():
 
 def handle_start(chat_id, user_name):
     webapp_url = get_webapp_url()
-    
-    text = f'''👋 <b>Добро пожаловать в Goldantelope ASIA!</b>
+    name = user_name or "друг"
 
-Ваш универсальный гид и сервис-хаб по Юго-Восточной Азии. Мы объединяем тысячи предложений в 4 странах:
+    text = f'''👋 <b>Добро пожаловать, {name}!</b>
+<b>Chào mừng bạn đến với Goldantelope ASIA!</b>
 
-🇹🇭 Таиланд | 🇮🇩 Индонезия | 🇮🇳 Индия | 🇻🇳 Вьетнам
+━━━━━━━━━━━━━━━━━━━━
+🇷🇺 <b>GOLDANTELOPE ASIA</b> — ваш гид по Вьетнаму и Таиланду
 
-🚀 <b>Что вы найдете в боте:</b>
+Мы собрали тысячи актуальных предложений в одном месте:
 
-• Недвижимость: более 1500 объектов (аренда и покупка).
+🏠 <b>Недвижимость</b> — более 3000 объектов аренды и покупки
+   📍 Нячанг, Дананг, Хошимин, Ханой, Фукуок
+   📍 Бангкок, Пхукет, Паттайя, Самуи
 
-• Транспорт: от 200 вариантов (байки, авто, яхты).
+🍽 <b>Рестораны</b> — 350+ заведений в городах Таиланда и Вьетнама
 
-• Рестораны и Досуг: сотни локаций и авторских экскурсий.
+🎯 <b>Экскурсии и развлечения</b> — лучшие туры и активности
 
-• Сервис: визаран, обмен валют, медицина и чаты общения.
+🛵 <b>Транспорт</b> — аренда байков, авто, трансферы
 
-📍 <b>Популярные направления:</b> Нячанг, Дананг, Хошимин, Ханой, Фукуок и другие города региона.
+💱 <b>Обмен валют</b> — актуальные курсы VND и THB
 
-Нажмите /start, чтобы начать! 👇 и нажмите <b>Открыть мини приложение</b>.'''
+🏥 <b>Медицина, визы, детям</b> — все сервисы для жизни за рубежом
+
+━━━━━━━━━━━━━━━━━━━━
+🇻🇳 <b>GOLDANTELOPE ASIA</b> — hướng dẫn du lịch và cuộc sống tại Việt Nam & Thái Lan
+
+🏠 <b>Bất động sản</b> — hơn 3000 bất động sản cho thuê và mua bán
+   📍 Nha Trang, Đà Nẵng, TP.HCM, Hà Nội, Phú Quốc
+   📍 Bangkok, Phuket, Pattaya, Koh Samui
+
+🍽 <b>Nhà hàng</b> — 350+ địa điểm ẩm thực tại Thái Lan và Việt Nam
+
+🎯 <b>Tour & Giải trí</b> — các tour và hoạt động tốt nhất
+
+🛵 <b>Phương tiện</b> — thuê xe máy, ô tô, xe đưa đón
+
+💱 <b>Đổi tiền</b> — tỷ giá VND và THB cập nhật
+
+🏥 <b>Y tế, thị thực, trẻ em</b> — đầy đủ dịch vụ cho cuộc sống ở nước ngoài
+
+━━━━━━━━━━━━━━━━━━━━
+👇 Нажмите кнопку ниже / Nhấn nút bên dưới:'''
 
     keyboard = {
         "inline_keyboard": [
-            [{"text": "🚀 Открыть мини приложение", "web_app": {"url": webapp_url}}],
-            [{"text": "🇹🇭 Тайланд", "callback_data": "country_thailand"}, 
-             {"text": "🇻🇳 Вьетнам", "callback_data": "country_vietnam"}],
-            [{"text": "🇮🇳 Индия", "callback_data": "country_india"}, 
-             {"text": "🇮🇩 Индонезия", "callback_data": "country_indonesia"}]
+            [{"text": "🌏 Открыть портал / Mở cổng thông tin", "web_app": {"url": webapp_url}}],
+            [
+                {"text": "🇻🇳 Вьетнам", "callback_data": "country_vietnam"},
+                {"text": "🇹🇭 Таиланд", "callback_data": "country_thailand"}
+            ]
         ]
     }
-    
+
     return send_message(chat_id, text, keyboard)
 
 def handle_app(chat_id):
