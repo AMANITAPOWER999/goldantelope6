@@ -108,30 +108,43 @@ def parse_number_from_str(s: str) -> float:
         return 0.0
 
 
+def _is_year(n: float) -> bool:
+    """Return True if n looks like a calendar year (2000–2040), not a price."""
+    return 2000 <= n <= 2040
+
+
 def extract_price(text: str) -> tuple[int, str]:
     # Strip URLs first so post IDs in t.me/channel/123456 aren't parsed as prices
     text = re.sub(r'https?://\S+', '', text)
     text = re.sub(r't\.me/\S+', '', text)
     text_upper = text.upper()
 
-    # THB patterns first
+    # THB patterns — explicit currency marker required or strong price context
+    # Minimum 1 000 THB (~$30) to exclude years (2025, 2026, etc.)
     thb_patterns = [
-        r'(\d[\d\s.,]*\d|\d)\s*(?:baht|thb|บาท)',
-        r'(?:thb|baht|฿|บาท)\s*(\d[\d\s.,]*)',
-        r'฿\s*(\d[\d\s.,]*)',
-        r'(\d[\d\s.,]*)\s*฿',
-        r'PRICE[:\s]*(\d[\d\s.,]*)\s*(?:thb|baht|฿)?',
-        r'RENT[:\s]*(\d[\d\s.,]*)\s*(?:thb|baht|฿)?',
-        r'ราคา[:\s]*(\d[\d\s.,]*)',
-        r'(\d{4,})\s*(?:thb|baht)?',
+        # Explicit THB/baht/บาท marker
+        (r'(\d[\d\s.,]*\d|\d)\s*(?:baht|thb|บาท)', 'THB'),
+        (r'(?:thb|baht|฿|บาท)\s*(\d[\d\s.,]*)', 'THB'),
+        (r'฿\s*(\d[\d\s.,]*)', 'THB'),
+        (r'(\d[\d\s.,]*)\s*฿', 'THB'),
+        # Price keyword + number (with or without explicit THB)
+        (r'PRICE[:\s]+(\d[\d\s.,]+)', 'THB'),
+        (r'RENT[:\s]+(\d[\d\s.,]+)', 'THB'),
+        (r'ราคา[:\s]*(\d[\d\s.,]*)', 'THB'),
+        # Russian price keywords (common in this channel)
+        (r'(?:ЦЕНА|СТОИМОСТЬ|АРЕНДА|ПРОДАЖА)[^\d]{0,10}(\d[\d\s.,]+)', 'THB'),
+        (r'(\d[\d\s.,]+)\s*(?:БАТ|БАТА|БАТОВ|BAHT)\b', 'THB'),
+        # Large standalone number >= 10 000 with optional THB (likely real estate price)
+        # MUST be >= 10 000 to exclude years
+        (r'\b(\d[\d\s.,]{4,})\s*(?:thb|baht|฿|บาท)\b', 'THB'),
     ]
-    for pat in thb_patterns:
+    for pat, _ in thb_patterns:
         m = re.search(pat, text_upper)
         if m:
             raw = m.group(1).replace(' ', '').replace(',', '')
             try:
                 num = parse_number_from_str(raw)
-                if 100 <= num <= 500_000_000:
+                if 1_000 <= num <= 500_000_000 and not _is_year(num):
                     return int(num), format_price_thb(int(num))
             except Exception:
                 pass
@@ -148,7 +161,7 @@ def extract_price(text: str) -> tuple[int, str]:
             raw = m.group(1).replace(' ', '').replace(',', '')
             try:
                 num = parse_number_from_str(raw)
-                if 10 <= num <= 10_000_000:
+                if 10 <= num <= 10_000_000 and not _is_year(num):
                     thb = int(num * USD_TO_THB)
                     return thb, format_price_thb(thb)
             except Exception:
@@ -166,7 +179,7 @@ def extract_price(text: str) -> tuple[int, str]:
             raw = m.group(1).replace(' ', '').replace(',', '')
             try:
                 num = parse_number_from_str(raw)
-                if 10 <= num <= 10_000_000:
+                if 10 <= num <= 10_000_000 and not _is_year(num):
                     thb = int(num * EUR_TO_THB)
                     return thb, format_price_thb(thb)
             except Exception:
