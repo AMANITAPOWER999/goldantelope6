@@ -6240,6 +6240,23 @@
                 btn.classList.toggle('active', btn.getAttribute('onclick').includes(country));
             });
             
+            // Reset real estate filters when switching countries
+            currentRealEstateCity = country === 'vietnam' ? 'hochiminh' : '';
+            currentRealEstateGroup = '';
+            currentRealEstateSort = '';
+            currentRealEstatePriceMax = null;
+            currentRealEstatePriceMin = null;
+            currentRealEstateType = '';
+            // Remove city highlight from all city buttons
+            document.querySelectorAll('.realestate-city-btn').forEach(btn => {
+                btn.style.border = '3px solid transparent';
+            });
+            // Highlight the default hochiminh button for Vietnam
+            if (country === 'vietnam') {
+                const hcmBtn = document.querySelector('.realestate-city-btn[data-city="hochiminh"]');
+                if (hcmBtn) hcmBtn.style.border = '3px solid #d4af37';
+            }
+            
             // Показываем кнопки городов для Вьетнама или других стран
             const isVietnam = (country === 'vietnam');
             if (document.getElementById('vietnam-entertainment-buttons'))
@@ -6311,6 +6328,10 @@
             updateAllCityCounts();
             if (document.getElementById('chat').classList.contains('active')) loadChatFeed();
             loadListings('restaurants');
+            // If real_estate tab is active, reload it with correct country
+            if (document.getElementById('real_estate') && document.getElementById('real_estate').classList.contains('active')) {
+                loadListings('real_estate');
+            }
         }
         
         // Погода по странам
