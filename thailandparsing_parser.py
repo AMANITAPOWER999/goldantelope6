@@ -354,6 +354,8 @@ def process_thailand_update(update: dict) -> dict | None:
     text = post.get('text') or post.get('caption') or ''
     if not text or len(text) < 20:
         return None
+    if not _has_real_content(text):
+        return None
     if is_spam(text):
         return None
 
@@ -432,10 +434,19 @@ def scrape_thailand_page(before_id: int = None) -> list:
     return results
 
 
+def _has_real_content(text: str) -> bool:
+    """Return True if text has meaningful content beyond Источник/Ссылка metadata."""
+    meta_re = re.compile(r'^(источник|ссылка|link|source)\s*:', re.IGNORECASE)
+    main_lines = [l.strip() for l in text.split('\n') if l.strip() and not meta_re.match(l.strip())]
+    return len(' '.join(main_lines)) >= 15
+
+
 def build_listing_from_scraped(msg: dict) -> dict | None:
     """Build a listing dict from a scraped Thailand page message."""
     text = msg.get('text', '')
     if not text or len(text) < 20:
+        return None
+    if not _has_real_content(text):
         return None
     if is_spam(text):
         return None
