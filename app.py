@@ -746,8 +746,10 @@ def get_city_counts(category):
             'Пхукет': ['пхукет', 'phuket', 'patong', 'kata', 'karon', 'rawai', 'chalong', 'kamala'],
             'Паттайя': ['паттайя', 'pattaya', 'jomtien', 'naklua', 'pratumnak'],
             'Бангкок': ['бангкок', 'bangkok', 'sukhumvit', 'silom', 'sathorn'],
-            'Самуи': ['самуи', 'samui', 'ko samui', 'koh samui', 'chaweng', 'lamai'],
-            'Хуахин': ['хуахин', 'hua hin'],
+            'Самуи': ['самуи', 'kohsamui', 'samui', 'ko samui', 'koh samui', 'chaweng', 'lamai'],
+            'Чиангмай': ['чиангмай', 'chiangmai', 'chiang mai', 'chiang_mai', 'nimman'],
+            'Хуахин': ['хуахин', 'hua hin', 'huahin'],
+            'Краби': ['краби', 'krabi', 'ao nang', 'railay'],
         }
         cities = list(city_keywords.keys())
         counts = {city: 0 for city in cities}
@@ -998,7 +1000,14 @@ def get_listings(category):
                 'Муйне': ['муйне', 'mui ne', 'muine', 'mui_ne'],
                 'Камрань': ['камрань', 'cam ranh', 'camranh', 'cam_ranh'],
                 'Далат': ['далат', 'da lat', 'dalat', 'da_lat'],
-                'Хойан': ['хойан', 'hoi an', 'hoian', 'hoi_an']
+                'Хойан': ['хойан', 'hoi an', 'hoian', 'hoi_an'],
+                'Бангкок': ['бангкок', 'bangkok'],
+                'Пхукет': ['пхукет', 'phuket'],
+                'Паттайя': ['паттайя', 'pattaya'],
+                'Самуи': ['самуи', 'koh samui', 'ko samui', 'kohsamui', 'samui'],
+                'Чиангмай': ['чиангмай', 'chiang mai', 'chiangmai', 'chiang_mai'],
+                'Хуахин': ['хуахин', 'hua hin', 'huahin', 'hua_hin'],
+                'Краби': ['краби', 'krabi'],
             }
             
             targets = city_keywords_map.get(city_filter, [city_filter.lower()])
@@ -1352,23 +1361,15 @@ def get_listings(category):
             # Default: date_desc — newest first
             filtered.sort(key=lambda x: x.get('date', x.get('added_at', '1970-01-01')) or '1970-01-01', reverse=True)
         
-        # Обновляем URL для фото из Telegram
-        for item in filtered:
-            if item.get('telegram_file_id'):
-                fresh_url = get_telegram_photo_url(item['telegram_file_id'])
-                if fresh_url:
-                    item['image_url'] = fresh_url
+        # Обновляем URL для фото из Telegram (параллельно)
+        _refresh_photo_urls_parallel(filtered)
         return jsonify(filtered)
     
     # Сортировка по дате - новые сверху
     filtered.sort(key=lambda x: x.get('date', x.get('added_at', '1970-01-01')) or '1970-01-01', reverse=True)
     
-    # Обновляем URL для фото из Telegram (генерируем свежие ссылки)
-    for item in filtered:
-        if item.get('telegram_file_id'):
-            fresh_url = get_telegram_photo_url(item['telegram_file_id'])
-            if fresh_url:
-                item['image_url'] = fresh_url
+    # Обновляем URL для фото из Telegram (параллельно для скорости)
+    _refresh_photo_urls_parallel(filtered)
     
     return jsonify(filtered)
 
@@ -3323,22 +3324,78 @@ def send_photo_to_channel(image_data, caption=''):
         print(f"TELEGRAM: Error sending photo to channel: {e}")
         return None
 
+_tg_url_cache = {}  # {file_id: (url, expires_at)}
+_TG_URL_TTL = 3000  # seconds (~50 min, Telegram links valid ~1 hour)
+
 def get_telegram_photo_url(file_id):
-    """Получить актуальный URL фото по file_id"""
+    """Получить актуальный URL фото по file_id (с кешированием на 50 мин)"""
     bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
     if not bot_token or not file_id:
         return None
-    
+    # Check cache
+    cached = _tg_url_cache.get(file_id)
+    if cached and time.time() < cached[1]:
+        return cached[0]
     try:
         file_url = f"https://api.telegram.org/bot{bot_token}/getFile?file_id={file_id}"
-        file_response = requests.get(file_url, timeout=10).json()
-        
+        file_response = requests.get(file_url, timeout=6).json()
         if file_response.get('ok'):
             file_path = file_response['result'].get('file_path')
-            return f"https://api.telegram.org/file/bot{bot_token}/{file_path}"
-    except:
+            url = f"https://api.telegram.org/file/bot{bot_token}/{file_path}"
+            _tg_url_cache[file_id] = (url, time.time() + _TG_URL_TTL)
+            return url
+    except Exception:
         pass
     return None
+
+
+_OLD_BOT_TOKEN_RE = re.compile(r'api\.telegram\.org/file/bot([^/]+)/(.+)')
+
+def _retoken_url(url, new_token):
+    """Replace the bot token in a Telegram file URL with the current token."""
+    if not url or not new_token:
+        return url
+    m = _OLD_BOT_TOKEN_RE.search(url)
+    if m:
+        file_path = m.group(2)
+        return f"https://api.telegram.org/file/bot{new_token}/{file_path}"
+    return url
+
+
+def _refresh_photo_urls_parallel(items):
+    """Refresh image_url for all items:
+    1. If image_url has a Telegram file path, replace the (possibly old) bot token.
+    2. Otherwise, call getFile API with telegram_file_id to get a fresh path.
+    """
+    bot_token = os.environ.get('TELEGRAM_BOT_TOKEN', '')
+    if not bot_token:
+        return
+
+    # Separate items: those with existing Telegram paths vs those needing getFile
+    need_getfile = []
+    for item in items:
+        url = item.get('image_url', '') or ''
+        if _OLD_BOT_TOKEN_RE.search(url):
+            # Just swap in the current token — fast, no network call
+            item['image_url'] = _retoken_url(url, bot_token)
+        elif item.get('telegram_file_id'):
+            need_getfile.append(item)
+
+    if not need_getfile:
+        return
+
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    with ThreadPoolExecutor(max_workers=min(10, len(need_getfile))) as ex:
+        future_to_item = {ex.submit(get_telegram_photo_url, item['telegram_file_id']): item
+                         for item in need_getfile}
+        for future in as_completed(future_to_item):
+            item = future_to_item[future]
+            try:
+                fresh_url = future.result()
+                if fresh_url:
+                    item['image_url'] = fresh_url
+            except Exception:
+                pass
 
 # ============ ВНУТРЕННИЙ ЧАТ С TELEGRAM АВТОРИЗАЦИЕЙ ============
 

@@ -31,6 +31,8 @@ CITY_MAP = {
     'Нячанг': [
         'nha trang', 'нячанг', 'nhatrang', 'nha-trang', 'khanh hoa',
         'vĩnh nguyên', 'vinh nguyen', 'hon tre', 'hon chong', 'bai dai',
+        'nyachang', 'niachang', 'arenda_v_nyachang', 'viet_life_niachang',
+        'ня чанге', 'нячанге', 'нячанга', 'в нячанг',
     ],
     'Хошимин': [
         'ho chi minh', 'хошимин', 'сайгон', 'saigon', 'hcmc', 'hcm',
