@@ -75,6 +75,22 @@ SPAM_KEYWORDS = [
     'advertising', 'binary options', 'invest', 'инвестиции в крипт',
     'обмен валют', 'обменник', 'курс обмена', 'лучший курс', 'exchange rate',
     'currency exchange', 'money exchange', 'обменяю валют',
+    # Gambling / casino spam
+    'джекпот', 'jackpot', 'slot', 'ставки онлайн', 'играю здесь',
+    'казино онлайн', 'wild casino', 'crypto casino',
+    # Scam-group promos (not real estate)
+    'создали группу мошенники', 'добавляем аккаунты мошенников',
+    'мошенники пишут вам в лс',
+    # Off-topic ads in real estate channels
+    'доставка одноразовых',
+]
+
+SPAM_REGEX_PATTERNS = [
+    re.compile(r'(выиграл|выигра\w+).{0,60}(здесь|сейчас|тут|казин|casino)', re.IGNORECASE),
+    re.compile(r'САМЫЙ ЛУЧШИЙ КАЗ', re.IGNORECASE),
+    re.compile(r'НАШИ ПАРТНЕРЫ.{0,50}ВЕСЬ ТАИЛАНД', re.IGNORECASE | re.DOTALL),
+    re.compile(r'АВТО И МОТО ТАИЛАНД.{0,200}МОШЕННИК', re.IGNORECASE | re.DOTALL),
+    re.compile(r'ВНИМАНИЕ МОШЕННИКИ(?!.{0,300}(аренд|продаж|квартир|недвижим|апартамент|villa))', re.IGNORECASE | re.DOTALL),
 ]
 
 SKIP_LINE_PREFIXES_TH = re.compile(
@@ -229,6 +245,9 @@ def is_spam(text: str) -> bool:
     tl = text.lower()
     for kw in SPAM_KEYWORDS:
         if kw in tl:
+            return True
+    for pat in SPAM_REGEX_PATTERNS:
+        if pat.search(text):
             return True
     return False
 
