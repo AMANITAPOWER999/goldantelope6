@@ -123,10 +123,18 @@ def parse_number_from_str(s: str) -> float:
         last_comma = s.rfind(',')
         last_dot = s.rfind('.')
         if last_dot > last_comma:
-            # English: 1,234.56
+            # English: 1,234.56 or 18,500,000 VND
             s = s.replace(',', '')
         else:
-            # European: 1.234,56
+            # European: 1.234,56 → 1234.56
+            # Special case: "18.500,000" has 8 raw digits; person likely meant 18,500,000 VND
+            # (wrote dot-thousands but mixed notation). Strip all separators if digits >= 7.
+            digits_only = re.sub(r'[,.]', '', s)
+            if len(digits_only) >= 7:
+                try:
+                    return float(digits_only)
+                except:
+                    pass
             s = s.replace('.', '').replace(',', '.')
         try:
             return float(s)
@@ -178,9 +186,11 @@ def normalize_price_text(text: str) -> str:
     # Remove URLs so message IDs inside t.me/channel/12345 aren't parsed as prices
     text = re.sub(r'https?://\S+', '', text)
     text = re.sub(r't\.me/\S+', '', text)
-    # Strip Vietnamese phone numbers: +84 / 84 / 0 followed by 8-10 digits
-    # These would otherwise be parsed as huge VND amounts
-    text = re.sub(r'(?<!\d)(?:\+84|84|0)\s*\d[\d\s\-\.]{8,12}(?!\d)', ' ', text)
+    # Strip Vietnamese phone numbers: +84 / 84 followed by any 9-digit number,
+    # OR local 0[3-9]... format (operator digits are 3-9, NOT 0-2 which appear in prices).
+    # Using [3-9] for the first operator digit avoids stripping e.g. "025 300 000" in prices.
+    text = re.sub(r'(?<!\d)(?:\+84|84)\s*[3-9]\d[\d\s\-\.]{7,9}(?!\d)', ' ', text)
+    text = re.sub(r'(?<!\d)0[3-9]\d[\d\s\-\.]{7,9}(?!\d)', ' ', text)
     return text
 
 
@@ -196,32 +206,44 @@ def extract_price(text: str):
     _mln_en = r'(?:million|mln)'
     _mln_vi = r'(?:triệu|trieu|tr\.?\s?đ|tr\b)'
     _mln_any = rf'(?:{_mln_ru}|{_mln_en}|{_mln_vi})'
-    _ty_vi = r'(?:tỷ|ty|tỉ)'
+    # tỷ = Vietnamese for billion; require word boundary so "ty" doesn't match "Type:", "style" etc.
+    _ty_vi = r'(?:tỷ|tỉ|\bty\b)'
     _vnd = r'(?:VND|vnd|донг|đồng|₫)'
     _per = r'(?:/\s*(?:month|mon|мес(?:яц)?|mo)\b)?'  # optional /month /мес suffix
+    # Number with separators. Two forms allowed:
+    #   a) Comma/dot only: 20,000,000 or 20.000.000 (no spaces)
+    #   b) Space-thousands: 20 000 000 (only groups of exactly 3 digits after space)
+    # This prevents "20,000,000 25,000,000" from merging into one huge number.
+    # Use \d{1,4} for the leading group to handle e.g. "1516,000,000" (1.516B VND).
+    _num = (r'\d{1,4}(?:,\d{3})*(?:\.\d+)?'   # comma-thousands or decimal
+            r'|\d{1,3}(?:\.\d{3})+(?:,\d+)?'  # dot-thousands (European)
+            r'|\d{1,3}(?:\s\d{3})+'            # space-thousands: 20 000 000
+            r'|\d+'                             # plain integer
+            )
 
     patterns = [
         # 1. Tỷ (billion VND) — highest priority multiplier
-        (rf'([\d][\d.,]*)\s*{_ty_vi}', 'VND_TY'),
+        (rf'({_num})\s*{_ty_vi}', 'VND_TY'),
         # 2. Millions with explicit word (млн/миллион/million/triệu) — before plain VND
         #    This prevents utility costs like "16.000 vnd/m³" overriding "13 млн донг"
-        (rf'([\d][\d.,]*)\s*{_mln_any}\s*{_vnd}?{_per}', 'VND_MLN'),
-        # 2b. Short "M" abbreviation for million: 17M, 17M VND, 17M/month
-        (rf'(\d[\d.,]*)\s*[Mm]\b(?:\s*{_vnd})?{_per}', 'VND_MLN'),
+        (rf'({_num})\s*{_mln_any}\s*{_vnd}?{_per}', 'VND_MLN'),
+        # 2b. Short "M" abbreviation for million: 17M VND, 17M/month
+        # Requires VND or /month context to avoid matching "700m from beach" (meters)
+        (rf'(\d[\d.,]*)\s*[Mm]\b(?=\s*(?:{_vnd}|/\s*(?:month|mon|мес)))', 'VND_MLN'),
         # 3. Unambiguous dot-million: 16.000.000 VND (must have 2+ dot-groups)
         (rf'(\d{{1,3}}(?:\.\d{{3}}){{2,}})\s*{_vnd}', 'VND'),
         # 4. Large plain number + VND (>= 6 digits = at least 100 000)
-        (rf'(\d[\d\s]*\d{{5,}})\s*{_vnd}{_per}', 'VND'),
+        (rf'({_num})\s*{_vnd}{_per}', 'VND'),
         # 5. USD
-        (r'([\d][\d\s.,]*)\s*(?:USD|usd|\$|доллар)', 'USD'),
-        (r'\$\s*([\d][\d\s.,]*)', 'USD'),
+        (rf'({_num})\s*(?:USD|usd|\$|доллар)', 'USD'),
+        (rf'\$\s*({_num})', 'USD'),
         # 6. EUR
-        (r'([\d][\d\s.,]*)\s*(?:EUR|eur|€|евро)', 'EUR'),
-        (r'€\s*([\d][\d\s.,]*)', 'EUR'),
+        (rf'({_num})\s*(?:EUR|eur|€|евро)', 'EUR'),
+        (rf'€\s*({_num})', 'EUR'),
         # 7. Any plain number + VND (fallback, lower priority)
-        (rf'([\d][\d\s.,]*?)\s*{_vnd}{_per}', 'VND'),
+        (rf'({_num})\s*{_vnd}{_per}', 'VND'),
         # 8. Large number with /month or /мес without currency → assume VND
-        (rf'([\d][\d\s.,]{{4,}}){_per}', 'VND_GUESS'),
+        (rf'({_num})\s*/\s*(?:month|mon|мес(?:яц)?|mo)\b', 'VND_GUESS'),
         # 9. Price keyword context
         (rf'(?:price|цена|стоимость|giá)[^\d]{{0,10}}([\d][\d\s.,]*)\s*(?:{_vnd}|USD|usd|\$|EUR|€)?', 'AUTO'),
     ]
@@ -242,7 +264,12 @@ def extract_price(text: str):
             if vnd < 1000:
                 vnd *= 1_000_000
         elif currency == 'VND_MLN':
-            vnd = int(amount * 1_000_000)
+            if amount >= 1_000_000:
+                # Double-multiplier guard: "18,500,000 million" means the number
+                # is already in the million-VND range; treat as direct VND.
+                vnd = int(amount)
+            else:
+                vnd = int(amount * 1_000_000)
         elif currency == 'VND_TY':
             vnd = int(amount * 1_000_000_000)
         elif currency == 'USD':
