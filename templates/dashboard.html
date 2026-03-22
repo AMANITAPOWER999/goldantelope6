@@ -8447,8 +8447,18 @@
                         const _descLines = _rawDesc.split('\n');
                         const _mainLines = _descLines.filter(l => !_metaRe.test(l.trim()));
                         const _metaLines = _descLines.filter(l => _metaRe.test(l.trim()));
-                        const _reordered = [..._mainLines, ..._metaLines].join('\n').trim();
-                        let descText = escapeHtml(_reordered.substring(0, 600));
+                        const _mainContent = _mainLines.join('\n').trim();
+                        let descText;
+                        if (!_mainContent || _mainContent.length < 15) {
+                            // No real content — show link to source
+                            const _srcLink = tgLink || (item.contact ? `https://t.me/${item.contact.replace('@','')}` : '');
+                            descText = _srcLink
+                                ? `<span style="color:#999;font-style:italic;">Описание недоступно. </span><a href="${_srcLink}" target="_blank" style="color:#d4af37;font-weight:600;">📎 Открыть в Telegram →</a>`
+                                : `<span style="color:#999;font-style:italic;">Описание недоступно.</span>`;
+                        } else {
+                            const _reordered = [..._mainLines, ..._metaLines].join('\n').trim();
+                            descText = escapeHtml(_reordered.substring(0, 600));
+                        }
                         descText = descText
                             .replace(/(ОБЪЕКТ:|Объект:)/g, tgLink ? `<a href="${tgLink}" target="_blank" style="color:inherit; font-weight:bold; text-decoration:underline;">$1</a>` : '<b>$1</b>')
                             .replace(/(Цена:|ЦЕНА:)/g, '<b>$1</b>')
