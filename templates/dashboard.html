@@ -6334,10 +6334,7 @@
             updateAllCityCounts();
             if (document.getElementById('chat').classList.contains('active')) loadChatFeed();
             loadListings('restaurants');
-            // If real_estate tab is active, reload it with correct country
-            if (document.getElementById('real_estate') && document.getElementById('real_estate').classList.contains('active')) {
-                loadListings('real_estate');
-            }
+            loadListings('real_estate');
         }
         
         // Погода по странам
