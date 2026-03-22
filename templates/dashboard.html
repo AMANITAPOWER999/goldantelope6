@@ -7734,6 +7734,13 @@
         
         function filterRealEstateGroup(group) {
             currentRealEstateGroup = group;
+            // When a specific group is chosen — reset city filter so all cities are shown
+            if (group !== '') {
+                currentRealEstateCity = '';
+                document.querySelectorAll('.realestate-city-btn').forEach(btn => {
+                    btn.style.border = '3px solid transparent';
+                });
+            }
             // Sync all "Все" buttons
             document.querySelectorAll('.group-filter-btn[data-group=""]').forEach(btn => {
                 btn.style.background = group === '' ? '#d4af37' : '#fff';
