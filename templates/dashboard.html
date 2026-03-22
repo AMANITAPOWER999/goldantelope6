@@ -5319,10 +5319,10 @@
             if (statusItems[2]) statusItems[2].innerHTML = `<span>${tr.status.updated} <strong id="last-update">${document.getElementById('last-update')?.textContent || '--:--'}</strong></span>`;
             
             document.querySelectorAll('.rate-item .rate-label').forEach(lbl => {
-                if (lbl.textContent.includes('Язык') || lbl.textContent.includes('Language') || lbl.textContent.includes('Ngôn ngữ')) {
+                if (lbl.textContent.includes('Язык') || lbl.textContent.includes('Language') || lbl.textContent.includes('Ngôn ngữ') || lbl.textContent.includes('ภาษา')) {
                     lbl.innerHTML = '🌐 ' + tr.status.lang;
                 }
-                if (lbl.textContent.includes('На портале') || lbl.textContent.includes('Online') || lbl.textContent.includes('Trực tuyến')) {
+                if (lbl.textContent.includes('На портале') || lbl.textContent.includes('Online') || lbl.textContent.includes('Trực tuyến') || lbl.textContent.includes('ออนไลน์')) {
                     lbl.innerHTML = '👥 ' + tr.status.online;
                 }
             });
@@ -5362,7 +5362,7 @@
                 if (onclick.includes('date_asc')) btn.textContent = tr.filters.oldest;
             });
             document.querySelectorAll('.reset-btn').forEach(btn => { 
-                if(btn.textContent.includes('Сброс') || btn.textContent.includes('Reset') || btn.textContent.includes('Đặt lại')) 
+                if(btn.textContent.includes('Сброс') || btn.textContent.includes('Reset') || btn.textContent.includes('Đặt lại') || btn.textContent.includes('รีเซ็ต')) 
                     btn.textContent = tr.filters.reset; 
             });
             document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -5410,7 +5410,7 @@
                 else if (text.includes('фукуок') || text.includes('phu quoc') || text.includes('phú quốc')) el.textContent = tr.cities.phuquoc;
                 else if (text.includes('ханой') || text.includes('hanoi') || text.includes('hà nội')) el.textContent = tr.cities.hanoi;
                 else if (text.includes('далат') || text.includes('da lat') || text.includes('đà lạt')) el.textContent = tr.cities.dalat;
-                else if (text.includes('подать') || text.includes('submit') || text.includes('đăng')) el.textContent = tr.filters.submit;
+                else if (text.includes('подать') || text.includes('submit') || text.includes('đăng') || text.includes('ส่ง')) el.textContent = tr.filters.submit;
             });
             
             document.querySelectorAll('.tour-count').forEach(el => {
@@ -5418,11 +5418,11 @@
                 const match = text.match(/\d+/);
                 if (match) {
                     const count = match[0];
-                    if (text.includes('объявлен') || text.includes('listing') || text.includes('tin')) {
+                    if (text.includes('объявлен') || text.includes('listing') || text.includes('tin') || text.includes('ประกาศ') || text.includes('ร้านอาหาร') || text.includes('ทัวร์') || text.includes('กิจกรรม')) {
                         el.textContent = count + ' ' + tr.filters.listings;
                     }
                 }
-                if (text.includes('объявление') || text.includes('listing') || text.includes('tin')) {
+                if (text.includes('объявление') || text.includes('listing') || text.includes('tin') || text.includes('ประกาศ')) {
                     if (!text.match(/\d+/)) el.textContent = tr.filters.listing;
                 }
             });
@@ -5537,6 +5537,7 @@
         function translateAllForms(tr) {
             const isVi = currentLang === 'vi';
             const isEn = currentLang === 'en';
+            const isTh = currentLang === 'th';
             
             // Полный словарь переводов для label
             const labelTranslations = {
@@ -5604,8 +5605,8 @@
                 'submit-entertainment': { title: '🎉 ' + (tr.forms.addEntertainment || 'Thêm giải trí'), desc: tr.forms.entertainmentDesc || 'Thêm hoạt động giải trí.' },
                 'submit-restaurant': { title: '🍽️ ' + (tr.forms.addRestaurant || 'Thêm nhà hàng'), desc: tr.forms.restaurantDesc || 'Đăng nhà hàng, quán ăn.' },
                 'submit-kids': { title: '👶 ' + (tr.forms.addKids || 'Thêm dịch vụ trẻ em'), desc: tr.forms.kidsDesc || 'Thêm dịch vụ cho trẻ em.' },
-                'submit-listing': { title: isVi ? '📝 Đăng tin' : (isEn ? '📝 Submit Listing' : '📝 Подать объявление'), desc: isVi ? 'Thêm tin đăng của bạn. Sau khi kiểm duyệt, tin sẽ xuất hiện trên trang.' : (isEn ? 'Add your listing. After moderation, it will appear on the site.' : 'Добавьте своё объявление. После модерации оно появится на сайте.') },
-                'submit-realestate': { title: isVi ? '🏠 Đăng bất động sản' : (isEn ? '🏠 Submit Real Estate' : '🏠 Подать недвижимость'), desc: isVi ? 'Thêm tin bất động sản. Sau khi kiểm duyệt, tin sẽ xuất hiện trên trang.' : (isEn ? 'Add your real estate listing. After moderation, it will appear on the site.' : 'Добавьте объявление о недвижимости. После модерации оно появится на сайте.') }
+                'submit-listing': { title: tr.forms.submitListingTitle || '📝 Подать объявление', desc: tr.forms.submitListingDesc || '' },
+                'submit-realestate': { title: tr.forms.submitListingTitle || '📝 Подать объявление', desc: tr.forms.submitListingDesc || '' }
             };
             
             // Перевод всех форм
@@ -5624,9 +5625,11 @@
             
             // Перевод всех label в формах
             document.querySelectorAll('form[id^="submit-"] label').forEach(lbl => {
-                const txt = lbl.textContent.toLowerCase().trim();
+                const storedKey = lbl.getAttribute('data-label-key');
+                const txt = storedKey || lbl.textContent.toLowerCase().trim();
                 for (const [key, value] of Object.entries(labelTranslations)) {
                     if (txt.includes(key)) {
+                        if (!storedKey) lbl.setAttribute('data-label-key', key);
                         // Сохраняем эмодзи если есть
                         const emoji = lbl.textContent.match(/^[\p{Emoji}]/u)?.[0] || '';
                         lbl.textContent = emoji ? emoji + ' ' + value.replace(/^[\p{Emoji}]\s*/u, '') : value;
@@ -5647,13 +5650,13 @@
             
             // Перевод всех placeholders в формах
             const placeholderTranslations = {
-                'например': isVi ? 'Ví dụ' : (isEn ? 'Example' : 'Например'),
-                'подробное описание': isVi ? 'Mô tả chi tiết...' : (isEn ? 'Detailed description...' : 'Подробное описание...'),
-                'ваше имя': isVi ? 'Tên của bạn' : (isEn ? 'Your name' : 'Ваше имя'),
-                'центр': isVi ? 'Trung tâm, gần biển...' : (isEn ? 'Center, near the beach...' : 'Центр, у моря...'),
-                'состояние': isVi ? 'Tình trạng, số km...' : (isEn ? 'Condition, mileage...' : 'Состояние, пробег...'),
-                'ответ': isVi ? 'Trả lời' : (isEn ? 'Answer' : 'Ответ'),
-                'скопируйте ссылку': isVi ? 'Sao chép liên kết từ Google Maps' : (isEn ? 'Copy link from Google Maps' : 'Скопируйте ссылку из Google Maps')
+                'например': isTh ? 'เช่น' : (isVi ? 'Ví dụ' : (isEn ? 'Example' : 'Например')),
+                'подробное описание': tr.forms.descPlaceholder || (isVi ? 'Mô tả chi tiết...' : (isEn ? 'Detailed description...' : 'Подробное описание...')),
+                'ваше имя': tr.forms.yourName || (isVi ? 'Tên của bạn' : (isEn ? 'Your name' : 'Ваше имя')),
+                'центр': tr.forms.locationPlaceholder || (isVi ? 'Trung tâm, gần biển...' : (isEn ? 'Center, near the beach...' : 'Центр, у моря...')),
+                'состояние': isTh ? 'สภาพ, จำนวน กม...' : (isVi ? 'Tình trạng, số km...' : (isEn ? 'Condition, mileage...' : 'Состояние, пробег...')),
+                'ответ': tr.forms.captchaAnswer || (isVi ? 'Trả lời' : (isEn ? 'Answer' : 'Ответ')),
+                'скопируйте ссылку': tr.forms.geoHint || (isVi ? 'Sao chép liên kết từ Google Maps' : (isEn ? 'Copy link from Google Maps' : 'Скопируйте ссылку из Google Maps'))
             };
             
             document.querySelectorAll('form[id^="submit-"] input[placeholder], form[id^="submit-"] textarea[placeholder]').forEach(el => {
@@ -5667,33 +5670,34 @@
             });
             
             // Перевод select options в формах
+            const _o = (th, vi, en, ru) => isTh ? th : (isVi ? vi : (isEn ? en : ru));
             const optionTranslations = {
-                'выберите': isVi ? 'Chọn...' : (isEn ? 'Select...' : 'Выберите...'),
-                'мотоцикл': isVi ? '🏍️ Xe máy' : (isEn ? '🏍️ Motorbike' : '🏍️ Мотоцикл'),
-                'авто': isVi ? '🚗 Ô tô' : (isEn ? '🚗 Car' : '🚗 Авто'),
-                'велосипед': isVi ? '🚲 Xe đạp' : (isEn ? '🚲 Bicycle' : '🚲 Велосипед'),
-                'яхта': isVi ? '⛵ Du thuyền' : (isEn ? '⛵ Yacht' : '⛵ Яхта'),
-                'продажа': isVi ? 'Bán' : (isEn ? 'Sale' : 'Продажа'),
-                'аренда': isVi ? 'Thuê' : (isEn ? 'Rent' : 'Аренда'),
-                'камбоджа': isVi ? '🇰🇭 Campuchia' : (isEn ? '🇰🇭 Cambodia' : '🇰🇭 Камбоджа'),
-                'лаос': isVi ? '🇱🇦 Lào' : (isEn ? '🇱🇦 Laos' : '🇱🇦 Лаос'),
-                'россия': isVi ? '🇷🇺 Nga' : (isEn ? '🇷🇺 Russia' : '🇷🇺 Россия'),
-                'казахстан': isVi ? '🇰🇿 Kazakhstan' : (isEn ? '🇰🇿 Kazakhstan' : '🇰🇿 Казахстан'),
-                '45 дней': isVi ? '45 ngày' : (isEn ? '45 days' : '45 дней'),
-                '90 дней': isVi ? '90 ngày' : (isEn ? '90 days' : '90 дней'),
-                'мероприятия': isVi ? '🎉 Sự kiện' : (isEn ? '🎉 Events' : '🎉 Мероприятия'),
-                'няни': isVi ? '👩‍👧 Trông trẻ' : (isEn ? '👩‍👧 Nannies' : '👩‍👧 Няни'),
-                'школы': isVi ? '🏫 Trường học' : (isEn ? '🏫 Schools' : '🏫 Школы'),
-                'товары': isVi ? '🧸 Đồ chơi' : (isEn ? '🧸 Kindergartens' : '🧸 Детские сады'),
-                'электроника': isVi ? '📱 Điện tử' : (isEn ? '📱 Electronics' : '📱 Электроника'),
-                'одежда': isVi ? '👕 Quần áo' : (isEn ? '👕 Clothing' : '👕 Одежда'),
-                'мебель': isVi ? '🪑 Nội thất' : (isEn ? '🪑 Furniture' : '🪑 Мебель'),
-                'отдам бесплатно': isVi ? '🆓 Miễn phí' : (isEn ? '🆓 Free' : '🆓 Отдам бесплатно'),
-                'вопросы': isVi ? '❓ Câu hỏi' : (isEn ? '❓ Questions' : '❓ Вопросы'),
-                'клиники': isVi ? '🏥 Phòng khám' : (isEn ? '🏥 Clinics' : '🏥 Клиники'),
-                'врачи': isVi ? '👨‍⚕️ Bác sĩ' : (isEn ? '👨‍⚕️ Doctors' : '👨‍⚕️ Врачи'),
-                'страховка': isVi ? '📋 Bảo hiểm' : (isEn ? '📋 Insurance' : '📋 Страховка'),
-                'направления': isVi ? '🔬 Chuyên khoa' : (isEn ? '🔬 Specializations' : '🔬 Направления')
+                'выберите': _o('เลือก...', 'Chọn...', 'Select...', 'Выберите...'),
+                'мотоцикл': _o('🏍️ มอเตอร์ไซค์', '🏍️ Xe máy', '🏍️ Motorbike', '🏍️ Мотоцикл'),
+                'авто': _o('🚗 รถยนต์', '🚗 Ô tô', '🚗 Car', '🚗 Авто'),
+                'велосипед': _o('🚲 จักรยาน', '🚲 Xe đạp', '🚲 Bicycle', '🚲 Велосипед'),
+                'яхта': _o('⛵ เรือยอช์ต', '⛵ Du thuyền', '⛵ Yacht', '⛵ Яхта'),
+                'продажа': _o('ขาย', 'Bán', 'Sale', 'Продажа'),
+                'аренда': _o('เช่า', 'Thuê', 'Rent', 'Аренда'),
+                'камбоджа': _o('🇰🇭 กัมพูชา', '🇰🇭 Campuchia', '🇰🇭 Cambodia', '🇰🇭 Камбоджа'),
+                'лаос': _o('🇱🇦 ลาว', '🇱🇦 Lào', '🇱🇦 Laos', '🇱🇦 Лаос'),
+                'россия': _o('🇷🇺 รัสเซีย', '🇷🇺 Nga', '🇷🇺 Russia', '🇷🇺 Россия'),
+                'казахстан': _o('🇰🇿 คาซัคสถาน', '🇰🇿 Kazakhstan', '🇰🇿 Kazakhstan', '🇰🇿 Казахстан'),
+                '45 дней': _o('45 วัน', '45 ngày', '45 days', '45 дней'),
+                '90 дней': _o('90 วัน', '90 ngày', '90 days', '90 дней'),
+                'мероприятия': _o('🎉 งานอีเวนต์', '🎉 Sự kiện', '🎉 Events', '🎉 Мероприятия'),
+                'няни': _o('👩‍👧 พี่เลี้ยง', '👩‍👧 Trông trẻ', '👩‍👧 Nannies', '👩‍👧 Няни'),
+                'школы': _o('🏫 โรงเรียน', '🏫 Trường học', '🏫 Schools', '🏫 Школы'),
+                'товары': _o('🧸 ของเล่น', '🧸 Đồ chơi', '🧸 Kindergartens', '🧸 Детские сады'),
+                'электроника': _o('📱 อิเล็กทรอนิกส์', '📱 Điện tử', '📱 Electronics', '📱 Электроника'),
+                'одежда': _o('👕 เสื้อผ้า', '👕 Quần áo', '👕 Clothing', '👕 Одежда'),
+                'мебель': _o('🪑 เฟอร์นิเจอร์', '🪑 Nội thất', '🪑 Furniture', '🪑 Мебель'),
+                'отдам бесплатно': _o('🆓 ฟรี', '🆓 Miễn phí', '🆓 Free', '🆓 Отдам бесплатно'),
+                'вопросы': _o('❓ คำถาม', '❓ Câu hỏi', '❓ Questions', '❓ Вопросы'),
+                'клиники': _o('🏥 คลินิก', '🏥 Phòng khám', '🏥 Clinics', '🏥 Клиники'),
+                'врачи': _o('👨‍⚕️ แพทย์', '👨‍⚕️ Bác sĩ', '👨‍⚕️ Doctors', '👨‍⚕️ Врачи'),
+                'страховка': _o('📋 ประกันภัย', '📋 Bảo hiểm', '📋 Insurance', '📋 Страховка'),
+                'направления': _o('🔬 ความเชี่ยวชาญ', '🔬 Chuyên khoa', '🔬 Specializations', '🔬 Направления')
             };
             
             document.querySelectorAll('form[id^="submit-"] select option').forEach(opt => {
@@ -5710,16 +5714,16 @@
             document.querySelectorAll('form[id^="submit-"] label').forEach(lbl => {
                 if (lbl.querySelector('input[type="checkbox"]') || lbl.querySelector('input[type="radio"]')) {
                     const txt = lbl.textContent.toLowerCase();
-                    if (txt.includes('продажа') || txt.includes('sale')) {
+                    if (txt.includes('продажа') || txt.includes('sale') || txt.includes('ขาย') || txt.includes('bán')) {
                         const inp = lbl.querySelector('input');
                         lbl.innerHTML = '';
                         if (inp) lbl.appendChild(inp);
-                        lbl.appendChild(document.createTextNode(' ' + (isVi ? 'Bán' : (isEn ? 'Sale' : 'Продажа'))));
-                    } else if (txt.includes('аренда') || txt.includes('rent')) {
+                        lbl.appendChild(document.createTextNode(' ' + (isTh ? tr.forms.sale : (isVi ? 'Bán' : (isEn ? 'Sale' : 'Продажа')))));
+                    } else if (txt.includes('аренда') || txt.includes('rent') || txt.includes('เช่า') || txt.includes('thuê')) {
                         const inp = lbl.querySelector('input');
                         lbl.innerHTML = '';
                         if (inp) lbl.appendChild(inp);
-                        lbl.appendChild(document.createTextNode(' ' + (isVi ? 'Thuê' : (isEn ? 'Rent' : 'Аренда'))));
+                        lbl.appendChild(document.createTextNode(' ' + (isTh ? tr.forms.rent : (isVi ? 'Thuê' : (isEn ? 'Rent' : 'Аренда')))));
                     }
                 }
             });
