@@ -5597,7 +5597,35 @@
                 
                 // Фотосессия
                 'стиль': isVi ? '🎨 Phong cách' : (isEn ? '🎨 Style' : '🎨 Стиль'),
-                'длительность': isVi ? '⏱ Thời lượng' : (isEn ? '⏱ Duration' : '⏱ Длительность')
+                'длительность': isVi ? '⏱ Thời lượng' : (isEn ? '⏱ Duration' : '⏱ Длительность'),
+
+                // Рестораны
+                'тип заведения': isVi ? '🏷️ Loại quán *' : (isEn ? '🏷️ Place Type *' : '🏷️ Тип заведения *'),
+                'кухня': isVi ? '🍳 Phong cách ẩm thực' : (isEn ? '🍳 Cuisine' : '🍳 Кухня'),
+                'фишка': isVi ? '⭐ Điểm nổi bật' : (isEn ? '⭐ Special Feature' : '⭐ Фишка'),
+
+                // Недвижимость — тип объекта
+                'тип недвижимости': isVi ? '🏷️ Loại bất động sản *' : (isEn ? '🏷️ Property Type *' : '🏷️ Тип недвижимости *'),
+
+                // Туры/группы
+                'группа максимум': isVi ? '👥 Nhóm tối đa người' : (isEn ? '👥 Max group size' : '👥 Группа максимум человек'),
+                'количество человек': isVi ? '👥 Số người' : (isEn ? '👥 Number of people' : '👥 Количество человек'),
+                'количество дней': isVi ? '📅 Số ngày' : (isEn ? '📅 Number of days' : '📅 Количество дней'),
+
+                // Обменники
+                'валютные пары': isVi ? '💵 Cặp tiền tệ' : (isEn ? '💵 Currency Pairs' : '💵 Валютные пары'),
+
+                // Общее
+                'адрес': isVi ? '📍 Địa chỉ' : (isEn ? '📍 Address' : '📍 Адрес'),
+                'ссылка на google maps': isVi ? '🗺️ Link Google Maps' : (isEn ? '🗺️ Google Maps Link' : '🗺️ Ссылка на Google Maps'),
+                'тип': isVi ? '🏷️ Loại' : (isEn ? '🏷️ Type' : '🏷️ Тип'),
+
+                // Фото/съёмка
+                'тип съёмки': isVi ? '📷 Loại chụp ảnh' : (isEn ? '📷 Shoot Type' : '📷 Тип съёмки'),
+                'примеры работ': isVi ? '📷 Mẫu ảnh (tối đa 4)' : (isEn ? '📷 Portfolio (up to 4)' : '📷 Примеры работ (до 4 шт)'),
+
+                // Транспорт
+                'объём двигателя': isVi ? '🔧 Dung tích động cơ (cc)' : (isEn ? '🔧 Engine Volume (cc)' : '🔧 Объём двигателя (сс)')
             };
             
             // Заголовки форм
@@ -5719,19 +5747,31 @@
             });
             
             // Перевод чекбоксов и radio labels
+            const radioMap = {
+                'продажа': _o('ขาย', 'Bán', 'Sale', 'Продажа'),
+                'аренда': _o('เช่า', 'Thuê', 'Rent', 'Аренда'),
+                '🍽️ ресторан': _o('🍽️ ร้านอาหาร', '🍽️ Nhà hàng', '🍽️ Restaurant', '🍽️ Ресторан'),
+                '☕ кафе': _o('☕ คาเฟ่', '☕ Quán cà phê', '☕ Café', '☕ Кафе'),
+                '🍸 бар': _o('🍸 บาร์', '🍸 Quán bar', '🍸 Bar', '🍸 Бар'),
+                '🎵 ночной клуб': _o('🎵 ไนท์คลับ', '🎵 Club đêm', '🎵 Night Club', '🎵 Ночной клуб'),
+                '🥟 русская еда': _o('🥟 อาหารรัสเซีย', '🥟 Món Nga', '🥟 Russian Food', '🥟 Русская еда'),
+                '🦐 морепродукты': _o('🦐 อาหารทะเล', '🦐 Hải sản', '🦐 Seafood', '🦐 Морепродукты'),
+                '🏢 квартира': _o('🏢 คอนโด', '🏢 Căn hộ', '🏢 Apartment', '🏢 Квартира'),
+                '🏠 дом': _o('🏠 บ้าน', '🏠 Nhà', '🏠 House', '🏠 Дом'),
+                '🏡 вилла': _o('🏡 วิลล่า', '🏡 Biệt thự', '🏡 Villa', '🏡 Вилла'),
+                '🌳 участок': _o('🌳 ที่ดิน', '🌳 Đất', '🌳 Land', '🌳 Участок'),
+            };
             document.querySelectorAll('form[id^="submit-"] label').forEach(lbl => {
                 if (lbl.querySelector('input[type="checkbox"]') || lbl.querySelector('input[type="radio"]')) {
-                    const txt = lbl.textContent.toLowerCase();
-                    if (txt.includes('продажа') || txt.includes('sale') || txt.includes('ขาย') || txt.includes('bán')) {
-                        const inp = lbl.querySelector('input');
-                        lbl.innerHTML = '';
-                        if (inp) lbl.appendChild(inp);
-                        lbl.appendChild(document.createTextNode(' ' + (isTh ? tr.forms.sale : (isVi ? 'Bán' : (isEn ? 'Sale' : 'Продажа')))));
-                    } else if (txt.includes('аренда') || txt.includes('rent') || txt.includes('เช่า') || txt.includes('thuê')) {
-                        const inp = lbl.querySelector('input');
-                        lbl.innerHTML = '';
-                        if (inp) lbl.appendChild(inp);
-                        lbl.appendChild(document.createTextNode(' ' + (isTh ? tr.forms.rent : (isVi ? 'Thuê' : (isEn ? 'Rent' : 'Аренда')))));
+                    const txt = lbl.textContent.toLowerCase().trim();
+                    for (const [key, value] of Object.entries(radioMap)) {
+                        if (txt.includes(key)) {
+                            const inp = lbl.querySelector('input');
+                            lbl.innerHTML = '';
+                            if (inp) lbl.appendChild(inp);
+                            lbl.appendChild(document.createTextNode(' ' + value));
+                            break;
+                        }
                     }
                 }
             });
