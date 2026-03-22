@@ -5528,9 +5528,15 @@
             if (lang !== 'ru') {
                 setTimeout(() => translateVisibleCards(lang), 400);
             } else {
-                // Restore all card texts to original Russian from data-orig
+                // Restore all card texts to original Russian (with full HTML formatting)
                 document.querySelectorAll('[data-orig]').forEach(el => {
-                    el.textContent = el.getAttribute('data-orig');
+                    const origHtml = el.getAttribute('data-orig-html');
+                    if (origHtml) {
+                        el.innerHTML = origHtml;
+                    } else {
+                        el.textContent = el.getAttribute('data-orig');
+                    }
+                    el.removeAttribute('data-tq');
                 });
             }
         }
@@ -5754,6 +5760,10 @@
             const original = el.getAttribute('data-orig') || el.textContent.trim();
             if (!original || original.length < 3) return;
             el.setAttribute('data-orig', original);
+            // Preserve original innerHTML for RU restoration
+            if (!el.getAttribute('data-orig-html')) {
+                el.setAttribute('data-orig-html', el.innerHTML);
+            }
             const cacheKey = `${original.substring(0, 120)}:${lang}`;
             if (translationCache[cacheKey]) {
                 el.textContent = translationCache[cacheKey];

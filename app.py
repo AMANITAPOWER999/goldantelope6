@@ -238,11 +238,17 @@ def _translate_via_mymemory(text: str, target_lang: str) -> str:
         r = requests.get(
             'https://api.mymemory.translated.net/get',
             params={'q': text[:450], 'langpair': f'ru|{tgt}'},
-            timeout=8
+            timeout=6
         )
         if r.ok:
             data = r.json()
+            # Reject quota warning responses (429 or status != 200)
+            if data.get('responseStatus') not in (200, '200'):
+                return text
             translated = data.get('responseData', {}).get('translatedText', '')
+            # Reject MyMemory quota warning messages
+            if translated and 'MYMEMORY WARNING' in translated.upper():
+                return text
             if translated and translated.upper() != text.upper():
                 return translated
     except Exception as e:
@@ -251,22 +257,26 @@ def _translate_via_mymemory(text: str, target_lang: str) -> str:
 
 
 def _translate_via_lingva(text: str, target_lang: str) -> str:
-    """Translate a single text using Lingva (Google Translate proxy, free)."""
+    """Translate via multiple Lingva/Google Translate proxy instances (free)."""
     try:
         import urllib.parse
         lang_map = {'en': 'en', 'vi': 'vi', 'ru': 'ru', 'th': 'th'}
         tgt = lang_map.get(target_lang, 'en')
-        encoded = urllib.parse.quote(text[:1000])
+        # Lingva uses path-based routing; colon in path causes 404. Replace with space.
+        clean = re.sub(r':\s*', ' ', text[:1000])
+        encoded = urllib.parse.quote(clean, safe='')
         instances = [
-            f'https://lingva.ml/api/v1/auto/{tgt}/{encoded}',
-            f'https://lingva.garudalinux.org/api/v1/auto/{tgt}/{encoded}',
+            f'https://lingva.ml/api/v1/ru/{tgt}/{encoded}',
+            f'https://lingva.garudalinux.org/api/v1/ru/{tgt}/{encoded}',
+            f'https://translate.plausibility.cloud/api/v1/ru/{tgt}/{encoded}',
+            f'https://lingva.lunar.icu/api/v1/ru/{tgt}/{encoded}',
         ]
         for url in instances:
             try:
-                r = requests.get(url, timeout=8)
+                r = requests.get(url, timeout=10)
                 if r.ok:
                     result = r.json().get('translation', '')
-                    if result:
+                    if result and result.strip() and result.upper() != text.upper():
                         return result
             except Exception:
                 continue
@@ -276,17 +286,19 @@ def _translate_via_lingva(text: str, target_lang: str) -> str:
 
 
 def _translate_one(text: str, target_lang: str) -> str:
-    """Translate one text, with cache check. MyMemory first (fast), Lingva fallback."""
+    """Translate one text, with cache check. Lingva first (no quota), MyMemory fallback."""
     if not text or not text.strip():
         return text
     cache_key = hashlib.md5(f"{text}:{target_lang}".encode()).hexdigest()
     if cache_key in translation_cache:
         return translation_cache[cache_key]
-    # MyMemory is ~0.7s vs Lingva ~4.5s — use MyMemory first
+    # Try MyMemory first (fast ~0.7s) then Lingva (more reliable, no daily quota)
     translated = _translate_via_mymemory(text, target_lang)
     if translated == text:
         translated = _translate_via_lingva(text, target_lang)
-    translation_cache[cache_key] = translated
+    # Only cache successful translations (not unchanged originals)
+    if translated != text:
+        translation_cache[cache_key] = translated
     return translated
 
 
