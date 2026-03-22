@@ -95,6 +95,11 @@ SPAM_KEYWORDS = [
     'страхование', 'осаго', 'каско',
 ]
 
+# Blocked sources — listings from these channels are auto-hidden
+BLOCKED_SOURCES = [
+    'gohomenhatrang',
+]
+
 
 def format_price_vnd(amount_vnd: int) -> str:
     s = str(int(amount_vnd))
@@ -336,6 +341,15 @@ def is_spam(text: str) -> bool:
     return False
 
 
+def is_blocked_source(text: str) -> bool:
+    """Returns True if the listing comes from a blocked channel."""
+    text_lower = text.lower()
+    for src in BLOCKED_SOURCES:
+        if src in text_lower:
+            return True
+    return False
+
+
 def extract_source_from_text(text: str) -> str:
     # Try to get @username from "Источник: @username" or "Источник: https://t.me/username"
     m = re.search(r'(?:источник|source)[:\s]+https?://t\.me/([\w]+)', text, re.IGNORECASE)
@@ -502,6 +516,7 @@ def build_listing_item(msg: dict, item_id: str) -> dict | None:
     source = extract_source_from_text(text)
     telegram_link = extract_telegram_link_from_text(text)
     images = msg.get('images', [])
+    hidden = is_blocked_source(text)
 
     return {
         'id': item_id,
@@ -525,6 +540,7 @@ def build_listing_item(msg: dict, item_id: str) -> dict | None:
         'country': 'vietnam',
         'message_id': msg['post_id'],
         'has_media': bool(images),
+        'hidden': hidden,
     }
 
 
