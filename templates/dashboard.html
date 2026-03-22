@@ -1599,6 +1599,14 @@
                     <button id="other-price-btn-2" onclick="filterRealEstatePrice(100000)" class="filter-btn" style="padding: 10px 20px; background: #fff; border: 2px solid #FF9800; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333;">До 100,000 THB</button>
                     <button onclick="resetRealEstateFilters()" class="reset-btn" style="padding: 10px 20px; background: #fff; border: 2px solid #999; border-radius: 8px; cursor: pointer; font-weight: 600; color: #333;">✕ Сброс</button>
                 </div>
+                <!-- Фильтр по группам для других стран -->
+                <div id="other-realestate-groups" style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px;">
+                    <span style="font-size: 13px; color: #666; margin-right: 5px;">📌 Группы:</span>
+                    <button onclick="filterRealEstateGroup('')" class="group-filter-btn other-group-all-btn" data-group="" style="padding: 6px 12px; background: #d4af37; border: 2px solid #d4af37; border-radius: 6px; cursor: pointer; font-weight: 500; color: #fff; font-size: 12px; height: 32px; box-sizing: border-box;">Все</button>
+                    <select id="other-group-select" onchange="filterRealEstateGroup(this.value)" style="padding: 6px 12px; border: 2px solid #9C27B0; border-radius: 6px; font-size: 12px; font-weight: 500; color: #333; background: #fff; cursor: pointer; min-width: 150px; height: 32px; box-sizing: border-box;">
+                        <option value="">-- Выбрать группу --</option>
+                    </select>
+                </div>
             </div>
             <div class="listing-grid" id="real_estate-grid" style="min-height: 200px; padding: 15px;">
                 <div class="loading"><div class="spinner"></div></div>
@@ -6083,6 +6091,9 @@
                 loadCityCounts('real_estate', '.realestate-city-btn');
                 loadCityCounts('news', '.news-city-btn');
                 loadMedicineTypeCounts();
+            } else {
+                // For Thailand and other countries — load real estate city counts after buttons are rendered
+                setTimeout(() => loadCityCounts('real_estate', '.realestate-city-btn'), 100);
             }
         }
         
@@ -6261,6 +6272,8 @@
                 document.getElementById('other-realestate-buttons').style.display = isVietnam ? 'none' : 'block';
             if (document.getElementById('vietnam-realestate-filters'))
                 document.getElementById('vietnam-realestate-filters').style.display = isVietnam ? 'flex' : 'none';
+            if (document.getElementById('vietnam-realestate-groups'))
+                document.getElementById('vietnam-realestate-groups').style.display = isVietnam ? 'flex' : 'none';
             
             // Показываем/скрываем секции по странам для всех категорий
             const allCountries = ['vietnam', 'thailand', 'india', 'indonesia'];
@@ -6275,6 +6288,7 @@
             // Генерируем динамические города для других стран
             if (!isVietnam) {
                 renderDynamicCityButtons();
+                loadOtherRealEstateGroups();
             }
             
             // Обновляем фильтр городов для детей
@@ -7720,25 +7734,35 @@
         
         function filterRealEstateGroup(group) {
             currentRealEstateGroup = group;
-            const allBtn = document.querySelector('.group-filter-btn[data-group=""]');
-            const selectEl = document.getElementById('group-select');
-            
-            if (group === '') {
-                // "Все" selected
-                if (allBtn) {
-                    allBtn.style.background = '#d4af37';
-                    allBtn.style.color = '#fff';
-                }
-                if (selectEl) selectEl.value = '';
-            } else {
-                // Specific group selected
-                if (allBtn) {
-                    allBtn.style.background = '#fff';
-                    allBtn.style.color = '#333';
-                }
-                if (selectEl) selectEl.value = group;
-            }
+            // Sync all "Все" buttons
+            document.querySelectorAll('.group-filter-btn[data-group=""]').forEach(btn => {
+                btn.style.background = group === '' ? '#d4af37' : '#fff';
+                btn.style.color = group === '' ? '#fff' : '#333';
+            });
+            // Sync both group selects
+            const selectEls = ['group-select', 'other-group-select'];
+            selectEls.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.value = group;
+            });
             loadListings('real_estate');
+        }
+
+        async function loadOtherRealEstateGroups() {
+            const selectEl = document.getElementById('other-group-select');
+            if (!selectEl) return;
+            try {
+                const r = await fetch(`/api/realestate-groups?country=${currentCountry}`);
+                const groups = await r.json();
+                selectEl.innerHTML = '<option value="">-- Выбрать группу --</option>';
+                groups.forEach(g => {
+                    const opt = document.createElement('option');
+                    opt.value = g;
+                    opt.textContent = g.startsWith('@') ? g : `@${g}`;
+                    selectEl.appendChild(opt);
+                });
+                selectEl.value = currentRealEstateGroup || '';
+            } catch(e) { console.error('Error loading groups:', e); }
         }
         
         function loadExchangeCounts() {
@@ -8457,12 +8481,20 @@
                                                 ? (() => {
                                                     let realEstatePrice = item.price || extractPriceFromText(item.description || item.text);
                                                     if (realEstatePrice && realEstatePrice !== '0' && realEstatePrice !== 0) {
-                                                        // Always reformat — strip existing VND/₫ and reparse to get correct space-separated format
-                                                        const priceClean = String(realEstatePrice).replace(/\s*VND\s*/gi, '').replace(/₫/g, '').trim();
-                                                        realEstatePrice = formatPrice(priceClean);
-                                                        return `<div style="background: transparent; border: 2px solid #d4af37; color: #d4af37; padding: 10px 12px; border-radius: 8px; margin-bottom: 10px; text-align: center;">
-                                                            <span style="font-size: 18px; font-weight: bold;">💰 ${realEstatePrice}</span>
-                                                        </div>`;
+                                                        let displayStr = '';
+                                                        if (currentCountry === 'thailand') {
+                                                            displayStr = item.price_str
+                                                                ? item.price_str
+                                                                : Math.round(Number(realEstatePrice)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' THB';
+                                                        } else {
+                                                            const priceClean = String(realEstatePrice).replace(/\s*VND\s*/gi, '').replace(/₫/g, '').trim();
+                                                            displayStr = formatPrice(priceClean);
+                                                        }
+                                                        if (displayStr) {
+                                                            return `<div style="background: transparent; border: 2px solid #d4af37; color: #d4af37; padding: 10px 12px; border-radius: 8px; margin-bottom: 10px; text-align: center;">
+                                                                <span style="font-size: 18px; font-weight: bold;">💰 ${displayStr}</span>
+                                                            </div>`;
+                                                        }
                                                     }
                                                     return '';
                                                 })()
