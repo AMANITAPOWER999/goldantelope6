@@ -1333,9 +1333,11 @@ def get_listings(category):
         if sort_type == 'price_desc':
             filtered.sort(key=get_price_int, reverse=True)
         elif sort_type == 'price_asc':
-            # Sort items with price > 0 first, then by price
             filtered.sort(key=lambda x: (get_price_int(x) == 0, get_price_int(x)))
+        elif sort_type == 'date_asc':
+            filtered.sort(key=lambda x: x.get('date', x.get('added_at', '1970-01-01')) or '1970-01-01', reverse=False)
         else:
+            # Default: date_desc — newest first
             filtered.sort(key=lambda x: x.get('date', x.get('added_at', '1970-01-01')) or '1970-01-01', reverse=True)
         
         # Обновляем URL для фото из Telegram
