@@ -5386,10 +5386,13 @@
             });
             
             document.querySelectorAll('.group-filter-btn[data-group=""]').forEach(btn => btn.textContent = tr.filters.all);
-            const groupLabel = document.querySelector('#vietnam-realestate-groups > span');
-            if (groupLabel) groupLabel.textContent = tr.filters.groups;
+            document.querySelectorAll('#vietnam-realestate-groups > span, #other-realestate-groups > span').forEach(el => {
+                el.textContent = tr.filters.groups;
+            });
             const groupSelect = document.getElementById('group-select');
             if (groupSelect && groupSelect.options[0]) groupSelect.options[0].text = tr.filters.selectGroup;
+            const otherGroupSelect = document.getElementById('other-group-select');
+            if (otherGroupSelect && otherGroupSelect.options[0]) otherGroupSelect.options[0].text = tr.filters.selectGroup;
             
             document.querySelectorAll('.city-name').forEach(el => {
                 const parent = el.closest('[data-city]');
@@ -7809,7 +7812,8 @@
             try {
                 const r = await fetch(`/api/realestate-groups?country=${currentCountry}`);
                 const groups = await r.json();
-                selectEl.innerHTML = '<option value="">-- Выбрать группу --</option>';
+                const _selectGroupLabel = (translations[currentLang] && translations[currentLang].filters && translations[currentLang].filters.selectGroup) ? translations[currentLang].filters.selectGroup : '-- Выбрать группу --';
+                selectEl.innerHTML = `<option value="">${_selectGroupLabel}</option>`;
                 groups.forEach(g => {
                     const opt = document.createElement('option');
                     opt.value = g;
