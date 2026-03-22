@@ -8531,9 +8531,15 @@
                                                     if (realEstatePrice && realEstatePrice !== '0' && realEstatePrice !== 0) {
                                                         let displayStr = '';
                                                         if (currentCountry === 'thailand') {
-                                                            displayStr = item.price_str
-                                                                ? item.price_str
-                                                                : Math.round(Number(realEstatePrice)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' THB';
+                                                            if (item.price_str) {
+                                                                displayStr = item.price_str;
+                                                            } else {
+                                                                // Strip non-digits (handles "3 500 000 VND", spaces, etc.)
+                                                                const _rawNum = parseInt(String(realEstatePrice).replace(/[^\d]/g, ''), 10);
+                                                                displayStr = (!isNaN(_rawNum) && _rawNum > 1000)
+                                                                    ? _rawNum.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' THB'
+                                                                    : '';
+                                                            }
                                                         } else {
                                                             const priceClean = String(realEstatePrice).replace(/\s*VND\s*/gi, '').replace(/₫/g, '').trim();
                                                             displayStr = formatPrice(priceClean);

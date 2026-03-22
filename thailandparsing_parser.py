@@ -119,6 +119,23 @@ def extract_price(text: str) -> tuple[int, str]:
     text = re.sub(r't\.me/\S+', '', text)
     text_upper = text.upper()
 
+    # Handle "X млн/миллион бат/baht" patterns first (before standard patterns)
+    mln_baht_patterns = [
+        r'(\d+[.,]?\d*)\s*(?:МЛН|МИЛЛИОН|MLN|MILLION)\s*(?:БАТ|БАТА|БАТОВ|BAHT|THB)',
+        r'(?:ОТ|ДО|ЦЕНА|СТОИМОСТЬ|PRICE)[:\s]*(\d+[.,]?\d*)\s*(?:МЛН|МИЛЛИОН)\s*(?:БАТ|BAHT|THB)',
+        r'(\d+[.,]?\d*)\s*(?:МЛН|МИЛЛИОН)\s*(?:БАТ|BAHT|THB)',
+    ]
+    for pat in mln_baht_patterns:
+        m = re.search(pat, text_upper)
+        if m:
+            raw = m.group(1).replace(',', '.')
+            try:
+                num = float(raw) * 1_000_000
+                if 100_000 <= num <= 500_000_000:
+                    return int(num), format_price_thb(int(num))
+            except Exception:
+                pass
+
     # THB patterns — explicit currency marker required or strong price context
     # Minimum 1 000 THB (~$30) to exclude years (2025, 2026, etc.)
     thb_patterns = [
