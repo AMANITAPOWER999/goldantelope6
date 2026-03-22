@@ -80,9 +80,17 @@ LISTING_TYPE_SALE = [
 ]
 
 SPAM_KEYWORDS = [
-    'casino', 'forex', 'crypto trading', 'заработок онлайн', 'пассивный доход',
+    # Finance / gambling / crypto
+    'casino', 'казино', 'казик', 'джекпот', 'jackpot', 'slot', 'слот',
+    'forex', 'crypto trading', 'заработок онлайн', 'пассивный доход',
     'бинарные опционы', 'deriv', 'click here', 'sign up now', 'register now',
     'advertising', 'binary options', 'invest', 'инвестиции в крипт',
+    # Non-real-estate services
+    'визаран', 'визабег', 'visa run', 'fast track',
+    'подбор жилья без комисс',          # real-estate agency ad, not a listing
+    'подбор жилья бесплатно',
+    'доставка цветов', 'flower delivery', 'bamboo flowers',
+    'страхование', 'осаго', 'каско',
 ]
 
 
@@ -169,6 +177,10 @@ def normalize_price_text(text: str) -> str:
     text = unicodedata.normalize('NFKC', text)
     # Remove URLs so message IDs inside t.me/channel/12345 aren't parsed as prices
     text = re.sub(r'https?://\S+', '', text)
+    text = re.sub(r't\.me/\S+', '', text)
+    # Strip Vietnamese phone numbers: +84 / 84 / 0 followed by 8-10 digits
+    # These would otherwise be parsed as huge VND amounts
+    text = re.sub(r'(?<!\d)(?:\+84|84|0)\s*\d[\d\s\-\.]{8,12}(?!\d)', ' ', text)
     return text
 
 
@@ -194,6 +206,8 @@ def extract_price(text: str):
         # 2. Millions with explicit word (млн/миллион/million/triệu) — before plain VND
         #    This prevents utility costs like "16.000 vnd/m³" overriding "13 млн донг"
         (rf'([\d][\d.,]*)\s*{_mln_any}\s*{_vnd}?{_per}', 'VND_MLN'),
+        # 2b. Short "M" abbreviation for million: 17M, 17M VND, 17M/month
+        (rf'(\d[\d.,]*)\s*[Mm]\b(?:\s*{_vnd})?{_per}', 'VND_MLN'),
         # 3. Unambiguous dot-million: 16.000.000 VND (must have 2+ dot-groups)
         (rf'(\d{{1,3}}(?:\.\d{{3}}){{2,}})\s*{_vnd}', 'VND'),
         # 4. Large plain number + VND (>= 6 digits = at least 100 000)
@@ -243,6 +257,9 @@ def extract_price(text: str):
                 vnd = int(amount * EUR_TO_VND)
         elif currency == 'VND_GUESS':
             if amount < 100_000:
+                continue
+            # Cap VND_GUESS at 2 billion (beyond that = phone number or error)
+            if amount > 2_000_000_000:
                 continue
             vnd = int(amount)
         elif currency == 'AUTO':
