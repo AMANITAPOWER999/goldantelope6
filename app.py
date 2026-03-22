@@ -731,15 +731,11 @@ def get_city_counts(category):
     
     if country == 'thailand':
         city_keywords = {
-            'Бангкок': ['бангкок', 'bangkok', 'sukhumvit', 'silom', 'sathorn'],
             'Пхукет': ['пхукет', 'phuket', 'patong', 'kata', 'karon', 'rawai', 'chalong', 'kamala'],
             'Паттайя': ['паттайя', 'pattaya', 'jomtien', 'naklua', 'pratumnak'],
+            'Бангкок': ['бангкок', 'bangkok', 'sukhumvit', 'silom', 'sathorn'],
             'Самуи': ['самуи', 'samui', 'ko samui', 'koh samui', 'chaweng', 'lamai'],
-            'Чиангмай': ['чиангмай', 'chiang mai', 'chiangmai', 'nimman'],
-            'Краби': ['краби', 'krabi', 'ao nang'],
             'Хуахин': ['хуахин', 'hua hin'],
-            'Чианграй': ['чианграй', 'chiang rai'],
-            'Удон Тхани': ['удон тхани', 'udon thani'],
         }
         cities = list(city_keywords.keys())
         counts = {city: 0 for city in cities}
